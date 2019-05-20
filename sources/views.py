@@ -16,7 +16,7 @@ from django.views import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
-from sourcelist.settings import (
+from sourcedive.settings import (
     PROJECT_NAME,
     EMAIL_SENDER,
     EMAIL_HOST_USER,

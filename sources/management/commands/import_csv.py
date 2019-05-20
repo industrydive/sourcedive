@@ -7,7 +7,7 @@ from django.core.management import call_command
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
-from sourcelist.settings import TEST_ENV
+from sourcedive.settings import TEST_ENV
 from sources.models import Person
 
 

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-from sourcelist.settings import SITE_URL
+from sourcedive.settings import SITE_URL
 from .models import Expertise, Person, Language, Organization, SourceForJournalist, SourceForAdmin, Page # Location,
 
 

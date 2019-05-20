@@ -39,15 +39,15 @@ Enter the database shell
 
 Create the database
 
-	CREATE DATABASE sourcelist;
+	CREATE DATABASE sourcedive;
 
 Create the user
 
-	CREATE USER sourcelistuser WITH PASSWORD 'password-here';
+	CREATE USER sourcediveuser WITH PASSWORD 'password-here';
 
 Grant permissions
 
-	GRANT ALL PRIVILEGES ON DATABASE sourcelist TO sourcelistuser;
+	GRANT ALL PRIVILEGES ON DATABASE sourcedive TO sourcediveuser;
 
 Close the shell
 
@@ -63,15 +63,15 @@ Generate ssh key
 
 Make the virtual environment
 
-	mkvirtualenv sourcelist
+	mkvirtualenv sourcedive
 
 Clone the repo (or your fork)
 
-	git clone git@github.com:greglinch/sourcelist.git
+	git clone git@github.com:greglinch/sourcedive.git
 
 Change into the directory
 
-	cd sourcelist
+	cd sourcedive
 
 Install the requirements
 
@@ -79,7 +79,7 @@ Install the requirements
 
 Add the private settings file
 
-	vim sourcelist/settings_private.py
+	vim sourcedive/settings_private.py
 
 Paste the following (and fill all the `UPDATE` vars)
 
@@ -188,7 +188,7 @@ Make directory for sites
 
 Make the ini file
 
-    sudo vim /etc/uwsgi/sites/sourcelist.ini
+    sudo vim /etc/uwsgi/sites/sourcedive.ini
 
 Paste in these settings
 
@@ -196,7 +196,7 @@ Paste in these settings
 
     logto = /var/log/uwsgi/error.log
 
-    project = sourcelist
+    project = sourcedive
     uid = ubuntu
     base = /home/%(uid)
 
@@ -240,25 +240,25 @@ Install nginx
 
 Create a config file
 
-    sudo vim /etc/nginx/sites-available/sourcelist
+    sudo vim /etc/nginx/sites-available/sourcedive
 
 Add this
 
     server {
         listen 80;
         server_name YOUR-DOMAIN.COM;
-        access_log /var/log/nginx/sourcelist_access.log;
-        error_log /var/log/nginx/sourcelist_error.log;
+        access_log /var/log/nginx/sourcedive_access.log;
+        error_log /var/log/nginx/sourcedive_error.log;
 
         location = /favicon.ico { access_log off; log_not_found off; }
 
         location /static/ {
-            root /home/ubuntu/sourcelist/;
+            root /home/ubuntu/sourcedive/;
         }
 
         location / {
             include         uwsgi_params;
-            uwsgi_pass      unix:/run/uwsgi/sourcelist.sock;
+            uwsgi_pass      unix:/run/uwsgi/sourcedive.sock;
         }
     }
 
@@ -268,7 +268,7 @@ Remove the symlink for the default site
 
 Symlink the available site to an enable site
 
-    sudo ln -s /etc/nginx/sites-available/sourcelist /etc/nginx/sites-enabled
+    sudo ln -s /etc/nginx/sites-available/sourcedive /etc/nginx/sites-enabled
 
 Check the configuration
 
