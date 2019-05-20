@@ -26,7 +26,7 @@ def create_person(counter, failed_rows, data_dict):
             obj, created = Person.objects.update_or_create(**data_dict)
         except Exception as e:
             failed_rows += 1
-            message = f'Row {counter} for {email_address}: {e}\n'
+            message = 'Row {} for {}: {}\n'.format(counter, email_address, e)
             print(message)
     # except:
         # failed_rows.append(counter)
@@ -87,7 +87,7 @@ def import_csv(csv_file):
                     create_person(counter, failed_rows, row_as_dict)
                 except:
                     email_address = row_as_dict['email_address']
-                    message = f'Failed to create a person for {email_address}. \nException: {str(sys.exc_info())}'
+                    message = 'Failed to create a person for {}. \nException: {str(sys.exc_info())}'.format(email_address)
                     print(message)
     else:
         with open(csv_file) as file:
