@@ -1,0 +1,134 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+       <meta charset="utf-8">
+       <title>{% block title %}{% trans 'Diverse Sources | Science, Health and Environment experts available on deadline' %}{% endblock %}</title>
+       <meta name="description" content="Search or join this database of experts to include more underrepresented voices and perspectives in your science, health and environment work.">
+       <meta name="keywords" content="science, health, environment, sources, experts, underrepresented, minorities, women">
+       <!-- social meta -->
+       <meta property="og:image" content="//diversesources.org/static/images/about.jpg" />
+       <meta name="twitter:image" content="//diversesources.org/static/images/about.jpg">
+       <meta http-equiv="X-UA-Compatible" content="IE=edge">
+       <!--    <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+       <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <link rel="icon" type="image/png" href="/static/images/favicon.ico">
+       <!-- Bootstrap core -->
+       <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous"> -->
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+       <!-- Bootstrap theme (UPDATE: change to CDN) -->
+       <!-- <link rel="stylesheet" type="text/css" href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css"> -->
+       <!-- jquery -->
+       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+       <!-- <script>window.jQuery || document.write('<script src="https://getbootstrap.com/docs/3.3/assets/js/vendor/jquery.min.js"><\/script>')</script> -->
+       <!-- Bootstrap JS -->
+       <script src="https://getbootstrap.com/docs/3.3/dist/js/bootstrap.min.js"></script>
+       <!-- FontAwesome (for icons) -->
+       <script src="https://use.fontawesome.com/f953c23132.js"></script>
+
+       <style>
+
+         body {
+            /*min-height: 2000px;*/
+            padding: 70px 0 70px 0; /* push all content below the fixed-top nav */
+         }
+
+          /*  form {
+              width: 50%;
+              margin: 0 auto;
+          }   */
+
+          footer {
+            margin-top: 35px;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            line-height: 60px;
+            background-color: #f8f8f8;
+          }
+          /*
+          .social {
+            margin: 8px;
+          }
+
+          .social a {
+            font-size: 18px;
+            margin-right: 5px;
+            text-decoration: none;
+          }
+
+          .social, .social li a {
+            display: inline-block;
+          }*/
+
+  /*        input {
+            width: 200px;
+          }
+  */
+          input,
+          label, .btn {
+              display: block;
+          }
+
+          /*  input {
+              width: 50%;
+          }*/
+
+          input.btn {
+              margin-top: 15px;
+          }
+
+          br {
+              display: none;
+          }
+
+          .g-recaptcha {
+              margin-top: 15px;
+          }
+
+          .helptext {
+              font-size: 60%;
+          }
+
+          .main-content {
+            width:90%;
+            margin: 0 auto;
+          }
+
+          textarea {
+            width: 250px;
+            display: block;
+          }
+
+          .nav li {
+            font-size: 20px;
+          }
+
+          .navbar-brand {
+            font-size: 24px;
+          }
+
+          .navbar-brand sup {
+            font-size: 50%;
+          }
+
+        </style>
+        <!-- CAPTCHA -->
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+
+    </head>
+    <body>
+        <div class="container">
+            {% include 'navbar.html' %}
+        </div>
+        <div class="container">
+            {% block main %}{% endblock %}
+        </div>
+        <div class="container">
+            {% include 'footer.html' %}
+        </div>
+    </body>
+    </html>

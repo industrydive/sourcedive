@@ -1,0 +1,1 @@
+django-sesame==1.4
