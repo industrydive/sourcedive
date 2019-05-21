@@ -3,11 +3,6 @@ ENTRY_CHOICES = (
     ('manual', 'Manual')
 )
 
-PERSON_CHOICES = (
-    ('journalist', 'Journalist'),
-    ('source', 'Source')
-)
-
 PREFIX_CHOICES = (
     ('Dr.', 'Dr.'),
     ('Miss', 'Miss'),
@@ -15,26 +10,6 @@ PREFIX_CHOICES = (
     ('Mrs.', 'Mrs.'),
     ('Ms.', 'Ms.'),
     ('Mx.', 'Mx.')
-)
-
-RATING_CHOICES = (
-    ('1', 'Within 1 hour'),
-    ('3', 'Within 3 hours'),
-    ('6', 'Within 6 hours'),
-    ('12', 'Within 12 hours'),
-    ('24', 'Within 24 hours'),
-    ('100', 'Greater than 24 hours'),
-    ('1000', 'No response')
-)
-
-STATUS_CHOICES = (
-    ('added', 'Added'),
-    ('added_by_self', 'Added by self'),
-    ('added_by_other', 'Added by other'),
-    ('added_by_admin', 'Added by admin'),
-    ('approved', 'Approved') # ,
-    # ('approved_by_user', 'Approved by user'),
-    # ('approved_by_admin', 'Approved by admin')
 )
 
 COUNTRY_CHOICES = (

@@ -104,7 +104,7 @@ def import_csv(csv_file):
                     timezone_value = None
                 ## map fields from csv to Person model
                 csv_to_model_dict = {
-                    'role': row['role'],
+                    # 'role': row['role'],
                     'first_name': row['first_name'],
                     'last_name': row['last_name'],
                     'type_of_expert': row['type_of_expert'],
@@ -122,12 +122,12 @@ def import_csv(csv_file):
                     'prefix': row['prefix'],
                     # 'middle_name': '',
                     # 'language': 'English', ## m2mfield
-                    'approved_by_admin': True,
-                    'approved_by_user': True,
+                    # 'approved_by_admin': True,
+                    # 'approved_by_user': True,
                     'entry_method': 'import',
                     'entry_type': 'automated',
                     'email_address': email_address,
-                    'status': status,
+                    # 'status': status,
                     'timezone': timezone_value,
                 }
                 create_person(csv_to_model_dict)
