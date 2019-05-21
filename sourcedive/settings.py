@@ -57,7 +57,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     # 'social_django.middleware.SocialAuthExceptionMiddleware',
-    'sesame.middleware.AuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'sourcedive.urls'
@@ -146,7 +145,6 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.yahoo.YahooOpenId',
     'django.contrib.auth.backends.ModelBackend',
-    'sesame.backends.ModelBackend',
 )
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
@@ -170,9 +168,5 @@ SOCIAL_AUTH_PIPELINE = (
 
 ## setup default login page
 # LOGIN_URL = '/login/'
-
-## django sesame magic link expiration
-
-# SESAME_MAX_AGE = 60 * 60 * 24 # seconds x minutes x hours
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale/')]
