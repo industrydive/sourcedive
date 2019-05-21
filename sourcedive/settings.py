@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     # 'social.apps.django_app.default',
     'social_django',
     'debug_toolbar',
-    'watson',
 ]
 
 MIDDLEWARE = [
