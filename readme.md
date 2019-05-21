@@ -67,7 +67,7 @@ Make the virtual environment
 
 Clone the repo (or your fork)
 
-	git clone git@github.com:greglinch/sourcedive.git
+	git clone git@github.com:industrydive/sourcedive.git
 
 Change into the directory
 
