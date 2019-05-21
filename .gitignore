@@ -5,6 +5,5 @@ db.sqlite3
 misc/
 Pipfile*
 settings_private*
-sources/migrations*
 static/
 latest_export*
