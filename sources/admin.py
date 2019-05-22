@@ -32,7 +32,7 @@ class PersonAdmin(admin.ModelAdmin):
     #     })
     # ),
     fields = ['private', 'prefix', 'pronouns', 'first_name', 'middle_name', 'last_name', 'type_of_expert', 'title', 'organization', 'website', 'expertise', 'email_address', 'phone_number_primary', 'phone_number_secondary', 'twitter', 'skype', 'language', 'timezone', 'city', 'state', 'country', 'notes', 'entry_method', 'entry_type', 'created_by']
-    list_display = ['last_name', 'first_name', 'updated', 'entry_method', 'entry_type', 'private'] # 'country', 'timezone_abbrev', 'title', 'type_of_expert', 'rating' ## 'email_address', 'phone_number', 'website', 'id_as_woman'
+    list_display = ['last_name', 'first_name', 'organization', 'updated', 'created_by', 'private'] # 'country', 'timezone_abbrev', 'title', 'type_of_expert', 'rating' ## 'email_address', 'phone_number', 'website'
     list_filter = ['timezone', 'city', 'state', 'country']
     search_fields = ['city', 'country', 'email_address', 'expertise', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']  # 'location',
     # filter_horizontal = ['expertise', 'organization', 'language']
