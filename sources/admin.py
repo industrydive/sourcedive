@@ -2,7 +2,17 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils.html import format_html
-from .models import Person
+from .models import Interaction, Person
+
+
+class InteractionInline(admin.TabularInline):
+    model = Interaction
+
+
+class InteractionAdmin(admin.ModelAdmin):
+    fields = ['date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'created_by']
+    filter_horizontal = ['interviewer']
+    readonly_fields = ['created_by']
 
 
 class PersonAdmin(admin.ModelAdmin):
@@ -21,9 +31,10 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ['city', 'country', 'email_address', 'expertise', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']  # 'location',
     # filter_horizontal = ['expertise', 'organization', 'language']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
-    save_as = True
+    # save_as = True
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
+    inlines = (InteractionInline,)
 
     def timezone_abbrev(self, obj):
         return obj.timezone
@@ -68,4 +79,5 @@ class PersonAdmin(admin.ModelAdmin):
 #         return qs.filter(role='source')
 
 
+admin.site.register(Interaction, InteractionAdmin)
 admin.site.register(Person, PersonAdmin)
