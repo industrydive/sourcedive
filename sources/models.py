@@ -90,7 +90,11 @@ class Interaction(BasicInfo):
     # timezone ??? see newspost code
 
     def __str__(self):
-        return '{} via {} ({} at {})'.format(self.interviewee, self.interaction_type, self.date_time.date(), self.date_time.time())
+        if self.interaction_type:
+            interaction_info = 'via {}'.format(self.interaction_type)
+        else:
+            interaction_info = ''
+        return '{} {} ({} at {})'.format(self.interviewee, interaction_info, self.date_time.date(), self.date_time.time())
 
     class Meta:
         verbose_name = ('Interaction')
