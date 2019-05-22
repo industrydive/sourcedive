@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -7,6 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.text import slugify
 from django.urls import reverse
+
 from sources.choices import PREFIX_CHOICES, COUNTRY_CHOICES, ENTRY_CHOICES
 
 
@@ -69,3 +71,26 @@ class Person(BasicInfo):
     class Meta:
         verbose_name = ('Person')
         verbose_name_plural = ('People')
+
+
+class Interaction(BasicInfo):
+    """ representation of each interaction with a source """
+    INTERACTION_CHOICES = (
+        ('email', 'Email'),
+        ('inperson', 'In-person'),
+        ('telephone', 'Telephone'),
+    )
+    created_by = models.ForeignKey(User, null=True, blank=True, related_name='created_by_person_interaction', on_delete=models.SET_NULL)
+    date_time = models.DateTimeField(blank=False, help_text='When the interaction took place', verbose_name='When?')
+    interaction_type = models.CharField(blank=True, max_length=255,choices=INTERACTION_CHOICES, verbose_name='Type')
+    interviewee = models.ForeignKey(Person, null=True, related_name='interviee', verbose_name='Interviewee', on_delete=models.SET_NULL)
+    interviewer = models.ManyToManyField(User, related_name='interviewer', verbose_name='Interviewer(s)')
+    notes = models.TextField(blank=True, help_text='Add any notes about interaction that may be helpful to you or others in the future.')
+    # timezone ??? see newspost code
+
+    # def __str__(self):
+    #     return name
+
+    class Meta:
+        verbose_name = ('Interaction')
+        verbose_name_plural = ('Interactions')
