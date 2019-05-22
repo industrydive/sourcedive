@@ -38,6 +38,7 @@ class Person(BasicInfo):
     phone_number_primary = models.CharField(max_length=30, null=True, blank=False, verbose_name=('Primary phone number'), help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name=('Secondary phone number'))
     prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name=('Prefix'))
+    private = models.BooleanField(blank=True, default=True, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
     pronouns = models.CharField(null=True, blank=True, max_length=255, help_text=('e.g. she/her, they/their, etc.'), verbose_name=('Pronouns'))  # switch to ManyToManyField?
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Skype username'))
     state = models.CharField(max_length=255, null=True, blank=True, verbose_name=('State/province'))
@@ -88,8 +89,8 @@ class Interaction(BasicInfo):
     notes = models.TextField(blank=True, help_text='Add any notes about interaction that may be helpful to you or others in the future.')
     # timezone ??? see newspost code
 
-    # def __str__(self):
-    #     return name
+    def __str__(self):
+        return '{} via {} ({} at {})'.format(self.interviewee, self.interaction_type, self.date_time.date(), self.date_time.time())
 
     class Meta:
         verbose_name = ('Interaction')
