@@ -12,6 +12,7 @@ class InteractionInline(admin.TabularInline):
 
 class InteractionAdmin(admin.ModelAdmin):
     fields = ['date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'created_by']
+    list_display = ['interviewee', 'interaction_type', 'date_time']
     filter_horizontal = ['interviewer']
     readonly_fields = ['created_by']
 
