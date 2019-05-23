@@ -2,6 +2,8 @@ This is an open-source tool for creating a database of sources.
 
 (hat tip to Digital Ocean [Django](https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-uwsgi-and-nginx-on-ubuntu-16-04) and [Postgres](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04))
 
+https://docs.bitnami.com/google/infrastructure/django/get-started/start-django-project/
+
 The following instructions are intended for Ubuntu 16.
 
 # Prep the system
@@ -10,6 +12,7 @@ The following instructions are intended for Ubuntu 16.
 	sudo apt-get install python3-pip
 	sudo apt-get install git
 	sudo apt-get install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx
+
 
 # Install virtualenvwrapper
 
@@ -197,7 +200,7 @@ Paste in these settings
     logto = /var/log/uwsgi/error.log
 
     project = sourcedive
-    uid = ubuntu
+    uid = <USERNAME>
     base = /home/%(uid)
 
     chdir = %(base)/%(project)
@@ -207,7 +210,7 @@ Paste in these settings
     master = true
     processes = 5
 
-    socket = /run/uwsgi/%(project).sock
+    socket = /tmp/%(project).sock
     chown-socket = %(uid):www-data
     chmod-socket = 660
     vacuum = true
@@ -222,7 +225,7 @@ Paste this
     Description=uWSGI Emperor service
 
     [Service]
-    ExecStartPre=/bin/bash -c 'mkdir -p /run/uwsgi; chown ubuntu:www-data /run/uwsgi'
+    ExecStartPre=/bin/bash -c 'mkdir -p /run/uwsgi; chown <USERNAME>:www-data /run/uwsgi'
     ExecStart=/usr/local/bin/uwsgi --emperor /etc/uwsgi/sites
     Restart=always
     KillSignal=SIGQUIT
@@ -246,19 +249,19 @@ Add this
 
     server {
         listen 80;
-        server_name YOUR-DOMAIN.COM;
+        server_name <YOUR-DOMAIN.COM>;
         access_log /var/log/nginx/sourcedive_access.log;
         error_log /var/log/nginx/sourcedive_error.log;
 
         location = /favicon.ico { access_log off; log_not_found off; }
 
         location /static/ {
-            root /home/ubuntu/sourcedive/;
+            root /home/<USERNAME>/sourcedive/;
         }
 
         location / {
             include         uwsgi_params;
-            uwsgi_pass      unix:/run/uwsgi/sourcedive.sock;
+            uwsgi_pass      unix:/run/tmp/sourcedive.sock;
         }
     }
 
