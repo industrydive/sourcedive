@@ -16,11 +16,15 @@ class InteractionAdmin(admin.ModelAdmin):
     filter_horizontal = ['interviewer']
     readonly_fields = ['created_by']
 
-    # def get_queryset(self, request):
-    #     """ only show private interactions to the person who created them """
-    #     qs = super(InteractionAdmin, self).get_queryset(request)
-    #     return qs.exclude(private=True)
-
+    def get_queryset(self, request):
+        """ only show private interactions to the person who created them """
+        qs = super(InteractionAdmin, self).get_queryset(request)
+        # if the source is not private, then include them
+        # if the source is private and created by that user, then include them
+        return qs.filter(
+            # IMPORANT! don't give superusers access to everything
+            Q(interviewee__private=False) | Q(interviewee__created_by=request.user, interviewee__private=True)
+        )
 
 class PersonAdmin(admin.ModelAdmin):
     # fieldsets = (
