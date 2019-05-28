@@ -19,8 +19,8 @@ class BasicInfo(models.Model):
 
 class Person(BasicInfo):
     """ Representation of a Sources in the system """
-    city = models.CharField(max_length=255, null=True, blank=False, verbose_name=('City'))
-    country = models.CharField(max_length=255, choices=COUNTRY_CHOICES, null=True, blank=False, verbose_name=('Country'))
+    city = models.CharField(max_length=255, null=True, blank=True, verbose_name=('City'))
+    country = models.CharField(max_length=255, choices=COUNTRY_CHOICES, null=True, blank=True, verbose_name=('Country'))
     email_address = models.EmailField(max_length=254, null=True, blank=False, verbose_name=('Email address'))
     entry_method = models.CharField(max_length=15, null=True, blank=True)
     entry_type = models.CharField(max_length=15, null=True, blank=True, default='manual')
@@ -30,8 +30,8 @@ class Person(BasicInfo):
     middle_name = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Middle name'))
     language = models.CharField(max_length=255, null=True, blank=True, help_text=('Comma-separated list'), verbose_name=('Language'))
     notes = models.TextField(null=True, blank=True)
-    organization = models.CharField(max_length=255, null=True, blank=False, verbose_name=('Organization')) # , help_text=('Comma-separated list'))
-    phone_number_primary = models.CharField(max_length=30, null=True, blank=False, verbose_name=('Primary phone number'), help_text=('Ideally a cell phone'))
+    organization = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Organization')) # , help_text=('Comma-separated list'))
+    phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name=('Primary phone number'), help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name=('Secondary phone number'))
     prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name=('Prefix'))
     private = models.BooleanField(blank=True, default=True, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
@@ -39,10 +39,10 @@ class Person(BasicInfo):
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Skype username'))
     state = models.CharField(max_length=255, null=True, blank=True, verbose_name=('State/province'))
     title = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Title'))
-    timezone = models.IntegerField(null=True, blank=False, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name=('Time zone offset from GMT'), help_text=('-4, 10, etc.'))  # look up based on city/state/county combo? use a list or third-party library?
+    timezone = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name=('Time zone offset from GMT'), help_text=('-4, 10, etc.'))  # look up based on city/state/county combo? use a list or third-party library?
     twitter = models.CharField(null=True, blank=True, max_length=140, help_text=('Please do not include the @ symbol.'), verbose_name=('Twitter'))
-    type_of_expert = models.CharField(max_length=255, null=True, blank=False, help_text=('e.g. Biologist, Engineer, Mathematician, Sociologist, etc.'), verbose_name=('Type of expert'))
-    website = models.URLField(max_length=255, null=True, blank=False, help_text=('Please include http:// at the beginning.'), verbose_name=('Website'))
+    type_of_expert = models.CharField(max_length=255, null=True, blank=True, help_text=('e.g. Biologist, Engineer, Mathematician, Sociologist, etc.'), verbose_name=('Type of expert'))
+    website = models.URLField(max_length=255, null=True, blank=True, help_text=('Please include http:// at the beginning.'), verbose_name=('Website'))
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='created_by_person', on_delete=models.SET_NULL)
     related_user = models.ForeignKey(User, null=True, blank=True, related_name='related_user_person', on_delete=models.SET_NULL)
 
