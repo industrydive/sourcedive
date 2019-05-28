@@ -9,7 +9,7 @@ from sources.choices import PREFIX_CHOICES, COUNTRY_CHOICES, ENTRY_CHOICES
 
 
 class BasicInfo(models.Model):
-    """ abstract base class used across models """
+    """ Abstract base class used across models """
     created = models.DateTimeField(null=True, blank=True, auto_now_add=True)
     updated = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name=('Updated in system'), help_text=('This is when the item was updated in the system.'))
 
@@ -18,7 +18,7 @@ class BasicInfo(models.Model):
 
 
 class Person(BasicInfo):
-    """ representation of a Sources in the system """
+    """ Representation of a Sources in the system """
     city = models.CharField(max_length=255, null=True, blank=False, verbose_name=('City'))
     country = models.CharField(max_length=255, choices=COUNTRY_CHOICES, null=True, blank=False, verbose_name=('Country'))
     email_address = models.EmailField(max_length=254, null=True, blank=False, verbose_name=('Email address'))
@@ -39,7 +39,7 @@ class Person(BasicInfo):
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Skype username'))
     state = models.CharField(max_length=255, null=True, blank=True, verbose_name=('State/province'))
     title = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Title'))
-    timezone = models.IntegerField(null=True, blank=False, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name=('Time zone offset from GMT'), help_text=('-4, 10, etc.'))  # look up based on city/state/county combo?
+    timezone = models.IntegerField(null=True, blank=False, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name=('Time zone offset from GMT'), help_text=('-4, 10, etc.'))  # look up based on city/state/county combo? use a list or third-party library?
     twitter = models.CharField(null=True, blank=True, max_length=140, help_text=('Please do not include the @ symbol.'), verbose_name=('Twitter'))
     type_of_expert = models.CharField(max_length=255, null=True, blank=False, help_text=('e.g. Biologist, Engineer, Mathematician, Sociologist, etc.'), verbose_name=('Type of expert'))
     website = models.URLField(max_length=255, null=True, blank=False, help_text=('Please include http:// at the beginning.'), verbose_name=('Website'))
@@ -71,7 +71,7 @@ class Person(BasicInfo):
 
 
 class Interaction(BasicInfo):
-    """ representation of each interaction with a source """
+    """ Representation of each interaction with a source """
     INTERACTION_CHOICES = (
         ('email', 'Email'),
         ('inperson', 'In-person'),
@@ -83,7 +83,7 @@ class Interaction(BasicInfo):
     interviewee = models.ForeignKey(Person, null=True, related_name='interviee', verbose_name='Interviewee', on_delete=models.SET_NULL)
     interviewer = models.ManyToManyField(User, related_name='interviewer', verbose_name='Interviewer(s)')
     notes = models.TextField(blank=True, help_text='Add any notes about interaction that may be helpful to you or others in the future.')
-    # timezone ??? see newspost code
+    # timezone with datetime ??? see newspost code
 
     def __str__(self):
         if self.interaction_type:
