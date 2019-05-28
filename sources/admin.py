@@ -27,7 +27,7 @@ class InteractionAdmin(admin.ModelAdmin):
 
 class PersonAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {
+        ('Privacy level', {
             'fields': ('private',)
         }),
         ('General info', {
@@ -43,7 +43,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'website',
             ),
         }),
-        ('Contact', {
+        ('Contact info', {
             'fields': (
                 'email_address',
                 'phone_number_primary',
@@ -52,7 +52,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'skype',
             ),
         }),
-        ('Location', {
+        ('Location info', {
             'fields': (
                 'timezone',
                 'city',
