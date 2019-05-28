@@ -1,6 +1,6 @@
 ENTRY_CHOICES = (
     ('automated', 'Automated'),
-    ('manual', 'Manual')
+    ('manual', 'Manual'),
 )
 
 PREFIX_CHOICES = (
@@ -9,7 +9,7 @@ PREFIX_CHOICES = (
     ('Mr.', 'Mr.'),
     ('Mrs.', 'Mrs.'),
     ('Ms.', 'Ms.'),
-    ('Mx.', 'Mx.')
+    ('Mx.', 'Mx.'),
 )
 
 COUNTRY_CHOICES = (
@@ -208,5 +208,5 @@ COUNTRY_CHOICES = (
     ('Vietnam','Vietnam'),
     ('Yemen','Yemen'),
     ('Zambia','Zambia'),
-    ('Zimbabwe','Zimbabwe')
+    ('Zimbabwe','Zimbabwe'),
 )
