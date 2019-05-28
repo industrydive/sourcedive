@@ -1,8 +1,5 @@
 from django.contrib import admin
-from django.contrib.auth.models import User
-from django.contrib import messages
 from django.db.models import Q
-from django.utils.html import format_html
 
 from .models import Interaction, Person
 
@@ -20,6 +17,7 @@ class InteractionAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """ only show private interactions to the person who created them """
         qs = super(InteractionAdmin, self).get_queryset(request)
+
         # if the source is not private, then include them
         # if the source is private and created by that user, then include them
         return qs.filter(
@@ -72,9 +70,9 @@ class PersonAdmin(admin.ModelAdmin):
         }),
     )
     # fields = ['private', 'prefix', 'pronouns', 'first_name', 'middle_name', 'last_name', 'type_of_expert', 'title', 'organization', 'website', 'expertise', 'email_address', 'phone_number_primary', 'phone_number_secondary', 'twitter', 'skype', 'language', 'timezone', 'city', 'state', 'country', 'notes', 'entry_method', 'entry_type', 'created_by']
-    list_display = ['last_name', 'first_name', 'organization', 'updated', 'created_by', 'private'] # 'country', 'timezone_abbrev', 'title', 'type_of_expert', 'rating' ## 'email_address', 'phone_number', 'website'
+    list_display = ['last_name', 'first_name', 'organization', 'updated', 'created_by', 'private']
     list_filter = ['timezone', 'city', 'state', 'country']
-    search_fields = ['city', 'country', 'email_address', 'expertise', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']  # 'location',
+    search_fields = ['city', 'country', 'email_address', 'expertise', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     # filter_horizontal = ['expertise', 'organization', 'language']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
     # save_as = True

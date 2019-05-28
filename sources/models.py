@@ -1,13 +1,8 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
-from django.db import models
-from django.contrib.auth.models import User
-from django.core.management import call_command
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils.text import slugify
+from django.db import models
 from django.urls import reverse
 
 from sources.choices import PREFIX_CHOICES, COUNTRY_CHOICES, ENTRY_CHOICES
@@ -47,7 +42,7 @@ class Person(BasicInfo):
     timezone = models.IntegerField(null=True, blank=False, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name=('Time zone offset from GMT'), help_text=('-4, 10, etc.'))  # look up based on city/state/county combo?
     twitter = models.CharField(null=True, blank=True, max_length=140, help_text=('Please do not include the @ symbol.'), verbose_name=('Twitter'))
     type_of_expert = models.CharField(max_length=255, null=True, blank=False, help_text=('e.g. Biologist, Engineer, Mathematician, Sociologist, etc.'), verbose_name=('Type of expert'))
-    website = models.URLField(max_length=255, null=True, blank=False, help_text=("Please include http:// at the beginning."), verbose_name=('Website'))
+    website = models.URLField(max_length=255, null=True, blank=False, help_text=('Please include http:// at the beginning.'), verbose_name=('Website'))
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='created_by_person', on_delete=models.SET_NULL)
     related_user = models.ForeignKey(User, null=True, blank=True, related_name='related_user_person', on_delete=models.SET_NULL)
 
