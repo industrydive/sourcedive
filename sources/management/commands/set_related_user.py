@@ -1,8 +1,10 @@
+import random
+
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
+
 from sources.models import Person
-import random
 
 
 def set_related_user(email_address): # , person_id, user_existing

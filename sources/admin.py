@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q
 from django.utils.html import format_html
+
 from .models import Interaction, Person
 
 
