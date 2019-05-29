@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'sources',
+    'sources.apps.SourcesConfig',
     # 'social.apps.django_app.default',
     'social_django',
     'debug_toolbar',

@@ -1,7 +1,13 @@
 from django.contrib import admin
 from django.db.models import Q
 
-from .models import Interaction, Person
+from .models import Expertise, Interaction, Organization, Person
+
+
+class ExpertiseAdmin(admin.ModelAdmin):
+    fields = ['name']
+    list_display = ['name']
+    search_fields = ['name']
 
 
 class InteractionInline(admin.TabularInline):
@@ -9,10 +15,10 @@ class InteractionInline(admin.TabularInline):
 
 
 class InteractionAdmin(admin.ModelAdmin):
-    fields = ['date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'created_by']
-    list_display = ['interviewee', 'interaction_type', 'date_time']
+    fields = ['date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'is_private', 'created_by']
+    list_display = ['interviewee', 'interaction_type', 'is_private', 'date_time']
     filter_horizontal = ['interviewer']
-    readonly_fields = ['created_by']
+    readonly_fields = ['created_by', 'is_private']
 
     def get_queryset(self, request):
         """ only show private interactions to the person who created them """
@@ -24,6 +30,13 @@ class InteractionAdmin(admin.ModelAdmin):
             # IMPORANT! don't give superusers access to everything
             Q(interviewee__private=False) | Q(interviewee__created_by=request.user, interviewee__private=True)
         )
+
+
+class OrganizationAdmin(admin.ModelAdmin):
+    fields = ['name']
+    list_display = ['name']
+    search_fields = ['name']
+
 
 class PersonAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -37,10 +50,11 @@ class PersonAdmin(admin.ModelAdmin):
                 'first_name',
                 'middle_name',
                 'last_name',
-                'type_of_expert',
                 'title',
                 'organization',
                 'website',
+                'type_of_expert',
+                'expertise',
             ),
         }),
         ('Contact info', {
@@ -72,8 +86,8 @@ class PersonAdmin(admin.ModelAdmin):
     # fields = ['private', 'prefix', 'pronouns', 'first_name', 'middle_name', 'last_name', 'type_of_expert', 'title', 'organization', 'website', 'expertise', 'email_address', 'phone_number_primary', 'phone_number_secondary', 'twitter', 'skype', 'language', 'timezone', 'city', 'state', 'country', 'notes', 'entry_method', 'entry_type', 'created_by']
     list_display = ['last_name', 'first_name', 'organization', 'updated', 'created_by', 'private']
     list_filter = ['timezone', 'city', 'state', 'country']
-    search_fields = ['city', 'country', 'email_address', 'expertise', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
-    # filter_horizontal = ['expertise', 'organization', 'language']
+    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
+    filter_horizontal = ['expertise']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
     # save_as = True
     save_on_top = True
@@ -106,5 +120,7 @@ class PersonAdmin(admin.ModelAdmin):
         super(PersonAdmin, self).save_model(request, obj, form, change)
 
 
+admin.site.register(Expertise, ExpertiseAdmin)
+admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(Interaction, InteractionAdmin)
 admin.site.register(Person, PersonAdmin)
