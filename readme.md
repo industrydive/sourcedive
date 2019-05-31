@@ -327,6 +327,4 @@ In the virtualenv:
 
 5. `python3 manage.py migrate`
 
-6. `python3 manage.py buildwatson`
-
-7. `sudo systemctl restart uwsgi`
+6. `sudo systemctl restart uwsgi`
