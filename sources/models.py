@@ -25,6 +25,15 @@ class Expertise(BasicInfo):
     def __str__(self):
         return '{}'.format(self.name)
 
+class Industry(BasicInfo):
+    name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Industry name')
+
+    class Meta:
+        verbose_name_plural = 'Industries'
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
 
 class Organization(BasicInfo):
     name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization name')
@@ -45,16 +54,18 @@ class Person(BasicInfo):
     expertise = models.ManyToManyField(Expertise, blank=True)
     # expertise = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Expertise')
     first_name = models.CharField(max_length=255, null=True, blank=False, verbose_name='First name')
+    industries = models.ManyToManyField(Industry, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=False, verbose_name='Last name')
     middle_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Middle name')
     language = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Language')
+    linkedin = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='LinkedIn URL')
     notes = models.TextField(null=True, blank=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    organization = models.ManyToManyField(Organization, blank=True)
     # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization') # , help_text='Comma-separated list')
     phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Primary phone number', help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
     prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name='Prefix')
-    private = models.BooleanField(blank=True, default=True, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
+    private = models.BooleanField(blank=True, default=False, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
     pronouns = models.CharField(null=True, blank=True, max_length=255, help_text='If provided by source (e.g. she/her, they/their, etc.)', verbose_name='Pronouns')
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name='Skype username')
     state = models.CharField(max_length=255, null=True, blank=True, verbose_name='State/province')
