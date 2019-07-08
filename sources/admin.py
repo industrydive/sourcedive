@@ -1,10 +1,22 @@
 from django.contrib import admin
 from django.db.models import Q
 
-from .models import Expertise, Interaction, Organization, Person
+from .models import (
+    Expertise,
+    Industry,
+    Interaction,
+    Organization,
+    Person,
+)
 
 
 class ExpertiseAdmin(admin.ModelAdmin):
+    fields = ['name']
+    list_display = ['name']
+    search_fields = ['name']
+
+
+class IndustryAdmin(admin.ModelAdmin):
     fields = ['name']
     list_display = ['name']
     search_fields = ['name']
@@ -51,6 +63,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'middle_name',
                 'last_name',
                 'title',
+                'industries',
                 'organization',
                 'website',
                 'type_of_expert',
@@ -62,6 +75,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'email_address',
                 'phone_number_primary',
                 'phone_number_secondary',
+                'linkedin',
                 'twitter',
                 'skype',
             ),
@@ -84,10 +98,10 @@ class PersonAdmin(admin.ModelAdmin):
         }),
     )
     # fields = ['private', 'prefix', 'pronouns', 'first_name', 'middle_name', 'last_name', 'type_of_expert', 'title', 'organization', 'website', 'expertise', 'email_address', 'phone_number_primary', 'phone_number_secondary', 'twitter', 'skype', 'language', 'timezone', 'city', 'state', 'country', 'notes', 'entry_method', 'entry_type', 'created_by']
-    list_display = ['last_name', 'first_name', 'organization', 'updated', 'created_by', 'private']
+    list_display = ['last_name', 'first_name', 'updated', 'created_by', 'private']
     list_filter = ['organization__name', 'expertise__name', 'timezone', 'city', 'state']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
-    filter_horizontal = ['expertise']
+    filter_horizontal = ['expertise', 'industries', 'organization']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
     # save_as = True
     save_on_top = True
@@ -122,5 +136,6 @@ class PersonAdmin(admin.ModelAdmin):
 
 admin.site.register(Expertise, ExpertiseAdmin)
 admin.site.register(Organization, OrganizationAdmin)
+admin.site.register(Industry, IndustryAdmin)
 admin.site.register(Interaction, InteractionAdmin)
 admin.site.register(Person, PersonAdmin)

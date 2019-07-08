@@ -323,8 +323,6 @@ In the virtualenv:
 
 3. `pip3 install -r requirements.txt`
 
-4. `python3 manage.py makemigrations`
+4. `python3 manage.py migrate`
 
-5. `python3 manage.py migrate`
-
-6. `sudo systemctl restart uwsgi`
+5. `sudo systemctl restart uwsgi`

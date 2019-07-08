@@ -10,7 +10,7 @@ from sources.choices import PREFIX_CHOICES, COUNTRY_CHOICES, ENTRY_CHOICES
 class BasicInfo(models.Model):
     """ Abstract base class used across models """
     created = models.DateTimeField(null=True, blank=True, auto_now_add=True)
-    updated = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name=('Updated in system'), help_text=('This is when the item was updated in the system.'))
+    updated = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Updated in system', help_text='This is when the item was updated in the system.')
 
     class Meta:
         abstract = True
@@ -21,6 +21,15 @@ class Expertise(BasicInfo):
 
     class Meta:
         verbose_name_plural = 'Expertise'
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+class Industry(BasicInfo):
+    name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Industry name')
+
+    class Meta:
+        verbose_name_plural = 'Industries'
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -37,32 +46,34 @@ class Organization(BasicInfo):
 
 class Person(BasicInfo):
     """ Representation of a Sources in the system """
-    city = models.CharField(max_length=255, null=True, blank=True, verbose_name=('City'))
-    country = models.CharField(max_length=255, choices=COUNTRY_CHOICES, null=True, blank=True, verbose_name=('Country'))
+    city = models.CharField(max_length=255, null=True, blank=True, verbose_name='City')
+    country = models.CharField(max_length=255, choices=COUNTRY_CHOICES, null=True, blank=True, verbose_name='Country')
     email_address = models.EmailField(max_length=254, null=True, blank=False, verbose_name=('Email address'))
     entry_method = models.CharField(max_length=15, null=True, blank=True)
     entry_type = models.CharField(max_length=15, null=True, blank=True, default='manual')
     expertise = models.ManyToManyField(Expertise, blank=True)
-    # expertise = models.CharField(max_length=255, null=True, blank=True, help_text=('Comma-separated list'), verbose_name=('Expertise'))
-    first_name = models.CharField(max_length=255, null=True, blank=False, verbose_name=('First name'))
-    last_name = models.CharField(max_length=255, null=True, blank=False, verbose_name=('Last name'))
-    middle_name = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Middle name'))
-    language = models.CharField(max_length=255, null=True, blank=True, help_text=('Comma-separated list'), verbose_name=('Language'))
+    # expertise = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Expertise')
+    first_name = models.CharField(max_length=255, null=True, blank=False, verbose_name='First name')
+    industries = models.ManyToManyField(Industry, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=False, verbose_name='Last name')
+    middle_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Middle name')
+    language = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Language')
+    linkedin = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='LinkedIn URL')
     notes = models.TextField(null=True, blank=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
-    # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Organization')) # , help_text=('Comma-separated list'))
-    phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name=('Primary phone number'), help_text=('Ideally a cell phone'))
-    phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name=('Secondary phone number'))
-    prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name=('Prefix'))
-    private = models.BooleanField(blank=True, default=True, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
-    pronouns = models.CharField(null=True, blank=True, max_length=255, help_text=('If provided by source (e.g. she/her, they/their, etc.)'), verbose_name=('Pronouns'))
-    skype = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Skype username'))
-    state = models.CharField(max_length=255, null=True, blank=True, verbose_name=('State/province'))
-    title = models.CharField(max_length=255, null=True, blank=True, verbose_name=('Title'))
-    timezone = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name=('Time zone offset from GMT'), help_text=('-4, 10, etc.'))  # look up based on city/state/county combo? use a list or third-party library?
-    twitter = models.CharField(null=True, blank=True, max_length=140, help_text=('Please do not include the @ symbol.'), verbose_name=('Twitter'))
-    type_of_expert = models.CharField(max_length=255, null=True, blank=True, help_text=('If applicable (e.g. economist, engineer, researcher, etc.)'), verbose_name=('Type of expert'))
-    website = models.URLField(max_length=255, null=True, blank=True, help_text=('Please include http:// at the beginning.'), verbose_name=('Website'))
+    organization = models.ManyToManyField(Organization, blank=True)
+    # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization') # , help_text='Comma-separated list')
+    phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Primary phone number', help_text=('Ideally a cell phone'))
+    phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
+    prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name='Prefix')
+    private = models.BooleanField(blank=True, default=False, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
+    pronouns = models.CharField(null=True, blank=True, max_length=255, help_text='If provided by source (e.g. she/her, they/their, etc.)', verbose_name='Pronouns')
+    skype = models.CharField(max_length=255, null=True, blank=True, verbose_name='Skype username')
+    state = models.CharField(max_length=255, null=True, blank=True, verbose_name='State/province')
+    title = models.CharField(max_length=255, null=True, blank=True, verbose_name='Job title')
+    timezone = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name='Time zone offset from GMT', help_text='-4, 10, etc.')  # look up based on city/state/county combo? use a list or third-party library?
+    twitter = models.CharField(null=True, blank=True, max_length=140, help_text='Please do not include the @ symbol.', verbose_name='Twitter')
+    type_of_expert = models.CharField(max_length=255, null=True, blank=True, help_text='If applicable (e.g. economist, engineer, researcher, etc.)', verbose_name='Type of expert')
+    website = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='Website')
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='created_by_person', on_delete=models.SET_NULL)
     related_user = models.ForeignKey(User, null=True, blank=True, related_name='related_user_person', on_delete=models.SET_NULL)
 
