@@ -75,6 +75,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'email_address',
                 'phone_number_primary',
                 'phone_number_secondary',
+                'linkedin',
                 'twitter',
                 'skype',
             ),
