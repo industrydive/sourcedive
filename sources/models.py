@@ -4,7 +4,12 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
-from sources.choices import PREFIX_CHOICES, COUNTRY_CHOICES, ENTRY_CHOICES
+from sources.choices import (
+    COUNTRY_CHOICES,
+    ENTRY_CHOICES,
+    PRIVACY_CHOICES,
+    PREFIX_CHOICES
+)
 
 
 class BasicInfo(models.Model):
@@ -66,6 +71,7 @@ class Person(BasicInfo):
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
     prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name='Prefix')
     private = models.BooleanField(blank=True, default=False, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
+    privacy_level = models.CharField(choices=PRIVACY_CHOICES, default='public', max_length=255, blank=False, help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not the contact info.')
     pronouns = models.CharField(null=True, blank=True, max_length=255, help_text='If provided by source (e.g. she/her, they/their, etc.)', verbose_name='Pronouns')
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name='Skype username')
     state = models.CharField(max_length=255, null=True, blank=True, verbose_name='State/province')

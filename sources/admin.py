@@ -52,8 +52,8 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 class PersonAdmin(admin.ModelAdmin):
     fieldsets = (
-        ('Privacy level', {
-            'fields': ('private',)
+        ('Privacy', {
+            'fields': ('private', 'privacy_level',)
         }),
         ('General info', {
             'fields': (

@@ -12,6 +12,13 @@ PREFIX_CHOICES = (
     ('Mx.', 'Mx.'),
 )
 
+PRIVACY_CHOICES = (
+    ('public', 'Public (whole newsroom)'),
+    ('searchable', 'Semi-private (searchable by newsroom)'),
+    # ('private_team', 'Private (only team)'),
+    ('private_individual', 'Private (only me)'),
+)
+
 COUNTRY_CHOICES = (
     ('Afghanistan','Afghanistan'),
     ('Albania','Albania'),
