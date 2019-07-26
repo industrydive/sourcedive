@@ -49,7 +49,14 @@ class Organization(BasicInfo):
         return '{}'.format(self.name)
 
 
-class Person(BasicInfo):
+class PrivacyMixin(models.Model):
+    privacy_level = models.CharField(choices=PRIVACY_CHOICES, default='public', max_length=255, blank=False, help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not the details.')
+
+    class Meta:
+        abstract = True
+
+
+class Person(BasicInfo, PrivacyMixin):
     """ Representation of a Sources in the system """
     city = models.CharField(max_length=255, null=True, blank=True, verbose_name='City')
     country = models.CharField(max_length=255, choices=COUNTRY_CHOICES, null=True, blank=True, verbose_name='Country')
@@ -71,7 +78,6 @@ class Person(BasicInfo):
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
     prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name='Prefix')
     # private = models.BooleanField(blank=True, default=False, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
-    privacy_level = models.CharField(choices=PRIVACY_CHOICES, default='public', max_length=255, blank=False, help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not the contact info.')
     pronouns = models.CharField(null=True, blank=True, max_length=255, help_text='If provided by source (e.g. she/her, they/their, etc.)', verbose_name='Pronouns')
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name='Skype username')
     state = models.CharField(max_length=255, null=True, blank=True, verbose_name='State/province')
@@ -107,7 +113,7 @@ class Person(BasicInfo):
         verbose_name = ('Source')
 
 
-class Interaction(BasicInfo):
+class Interaction(BasicInfo, PrivacyMixin):
     """ Representation of each interaction with a source """
     INTERACTION_CHOICES = (
         ('email', 'Email'),
@@ -122,12 +128,12 @@ class Interaction(BasicInfo):
     notes = models.TextField(blank=True, help_text='Add any notes about interaction that may be helpful to you or others in the future.')
     # timezone with datetime ??? see newspost code
 
-    @property
-    def is_private(self):
-        if self.interviewee.privacy_level == 'private_individual':
-            return True
-        else:
-            return False
+    # @property
+    # def is_private(self):
+    #     if self.interviewee.privacy_level == 'private_individual':
+    #         return True
+    #     else:
+    #         return False
 
     def __str__(self):
         if self.interaction_type:
