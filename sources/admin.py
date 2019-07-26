@@ -27,10 +27,21 @@ class InteractionInline(admin.TabularInline):
 
 
 class InteractionAdmin(admin.ModelAdmin):
-    fields = ['date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'is_private', 'created_by']
-    list_display = ['interviewee', 'interaction_type', 'is_private', 'date_time']
+    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'created_by']
+    list_display = ['interviewee', 'interaction_type', 'privacy_level', 'date_time']
     filter_horizontal = ['interviewer']
-    readonly_fields = ['created_by', 'is_private']
+    readonly_fields = ['created_by']
+
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        # import pdb; pdb.set_trace()
+        obj = Interaction.objects.get(id=object_id)
+        # if the privacy level is semi-private/searchable and the logged
+        # in user is not the one who created the interaction
+        if obj.privacy_level == 'searchable' and obj.created_by != request.user:
+            self.fields.pop(5)
+        return self.changeform_view(request, object_id, form_url, extra_context)
+
 
     def get_queryset(self, request):
         """ only show private interactions to the person who created them """
@@ -40,8 +51,8 @@ class InteractionAdmin(admin.ModelAdmin):
         # if the source is private and created by that user, then include them
         return qs.filter(
             # IMPORANT! don't give superusers access to everything
-            ~Q(interviewee__privacy_level__contains='private') | \
-            Q(interviewee__created_by=request.user, interviewee__privacy_level='private_individual')
+            ~Q(privacy_level__contains='private') | \
+            Q(created_by=request.user, privacy_level='private_individual')
         )
 
 
@@ -112,6 +123,17 @@ class PersonAdmin(admin.ModelAdmin):
     def timezone_abbrev(self, obj):
         return obj.timezone
     timezone_abbrev.short_description = ('Timezone offset')
+
+
+    # def change_view(self, request, object_id, form_url='', extra_context=None):
+    #     # import pdb; pdb.set_trace()
+    #     obj = Person.objects.get(id=object_id)
+    #     # if the privacy level is semi-private/searchable and the logged
+    #     # in user is not the one who created the interaction
+    #     if obj.privacy_level == 'searchable' and obj.created_by != request.user:
+    #         self.fields.pop(5)  # UPDATE to remove contact info
+    #     return self.changeform_view(request, object_id, form_url, extra_context)
+
 
     def get_queryset(self, request):
         """ only show private sources to the person who created them """
