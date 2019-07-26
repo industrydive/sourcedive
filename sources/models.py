@@ -70,7 +70,7 @@ class Person(BasicInfo):
     phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Primary phone number', help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
     prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name='Prefix')
-    private = models.BooleanField(blank=True, default=False, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
+    # private = models.BooleanField(blank=True, default=False, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
     privacy_level = models.CharField(choices=PRIVACY_CHOICES, default='public', max_length=255, blank=False, help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not the contact info.')
     pronouns = models.CharField(null=True, blank=True, max_length=255, help_text='If provided by source (e.g. she/her, they/their, etc.)', verbose_name='Pronouns')
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name='Skype username')
@@ -124,7 +124,7 @@ class Interaction(BasicInfo):
 
     @property
     def is_private(self):
-        if self.interviewee.private:
+        if self.interviewee.privacy_level == 'private_individual':
             return True
         else:
             return False

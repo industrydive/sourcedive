@@ -40,7 +40,8 @@ class InteractionAdmin(admin.ModelAdmin):
         # if the source is private and created by that user, then include them
         return qs.filter(
             # IMPORANT! don't give superusers access to everything
-            Q(interviewee__private=False) | Q(interviewee__created_by=request.user, interviewee__private=True)
+            ~Q(interviewee__privacy_level__contains='private') | \
+            Q(interviewee__created_by=request.user, interviewee__privacy_level='private_individual')
         )
 
 
@@ -53,7 +54,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 class PersonAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Privacy', {
-            'fields': ('private', 'privacy_level',)
+            'fields': ('privacy_level',)
         }),
         ('General info', {
             'fields': (
@@ -97,9 +98,9 @@ class PersonAdmin(admin.ModelAdmin):
             ),
         }),
     )
-    # fields = ['private', 'prefix', 'pronouns', 'first_name', 'middle_name', 'last_name', 'type_of_expert', 'title', 'organization', 'website', 'expertise', 'email_address', 'phone_number_primary', 'phone_number_secondary', 'twitter', 'skype', 'language', 'timezone', 'city', 'state', 'country', 'notes', 'entry_method', 'entry_type', 'created_by']
-    list_display = ['last_name', 'first_name', 'updated', 'created_by', 'private']
-    list_filter = ['organization__name', 'expertise__name', 'timezone', 'city', 'state']
+    # fields = ['privacy_level', 'prefix', 'pronouns', 'first_name', 'middle_name', 'last_name', 'type_of_expert', 'title', 'organization', 'website', 'expertise', 'email_address', 'phone_number_primary', 'phone_number_secondary', 'twitter', 'skype', 'language', 'timezone', 'city', 'state', 'country', 'notes', 'entry_method', 'entry_type', 'created_by']
+    list_display = ['last_name', 'first_name', 'updated', 'created_by', 'privacy_level']
+    list_filter = ['organization__name', 'expertise__name', 'timezone', 'city', 'state', 'privacy_level']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
@@ -120,8 +121,10 @@ class PersonAdmin(admin.ModelAdmin):
         # if the source is private and created by that user, then include them
         return qs.filter(
             # IMPORANT! don't give superusers access to everything
-            Q(private=False) | Q(created_by=request.user, private=True)
+            ~Q(privacy_level__contains='private') | \
+            Q(created_by=request.user, privacy_level='private_individual')
         )
+
 
     def save_model(self, request, obj, form, change):
         ## associate the Person being created with the User who created them
