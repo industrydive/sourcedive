@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interaction',
             name='privacy_level',
-            field=models.CharField(choices=[('public', 'Public (whole newsroom)'), ('searchable', 'Semi-private (searchable by newsroom)'), ('private_individual', 'Private (only me)')], default='public', help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not the details.', max_length=255),
+            field=models.CharField(choices=[('public', 'Public (whole newsroom)'), ('searchable', 'Semi-private (searchable by newsroom)'), ('private_individual', 'Private (only me)')], default='public', help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not certain details.', max_length=255),
         ),
         migrations.AlterField(
             model_name='person',
             name='privacy_level',
-            field=models.CharField(choices=[('public', 'Public (whole newsroom)'), ('searchable', 'Semi-private (searchable by newsroom)'), ('private_individual', 'Private (only me)')], default='public', help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not the details.', max_length=255),
+            field=models.CharField(choices=[('public', 'Public (whole newsroom)'), ('searchable', 'Semi-private (searchable by newsroom)'), ('private_individual', 'Private (only me)')], default='public', help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not certain details.', max_length=255),
         ),
     ]
