@@ -64,6 +64,16 @@ class InteractionAdmin(admin.ModelAdmin):
             Q(created_by=request.user, privacy_level='private_individual')
         )
 
+    def save_model(self, request, obj, form, change):
+        ## associate the Interaction being created with the User who created them
+        current_user = request.user
+        if not obj.created_by:
+            obj.created_by = current_user
+
+        ## save
+        super(InteractionAdmin, self).save_model(request, obj, form, change)
+
+
     def notes_semiprivate_display(self, obj):
         display_text = 'Please contact <strong>{}</strong> for this information'.format(obj.created_by)
         return format_html(display_text)
@@ -239,7 +249,8 @@ class PersonAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         ## associate the Person being created with the User who created them
         current_user = request.user
-        obj.created_by = current_user
+        if not obj.created_by:
+            obj.created_by = current_user
         if not obj.entry_method:
             obj.entry_method = 'admin-form'
 
