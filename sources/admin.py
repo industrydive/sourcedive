@@ -132,9 +132,9 @@ class PersonAdmin(admin.ModelAdmin):
                 }),
                 ('Contact info', {
                     'fields': (
-                        # 'email_address_semiprivate_display',
-                        # 'phone_number_primary_semiprivate_display',
-                        # 'phone_number_secondary_semiprivate_display',
+                        'email_address_semiprivate_display',
+                        'phone_number_primary_semiprivate_display',
+                        'phone_number_secondary_semiprivate_display',
                         'linkedin',
                         'twitter',
                         'skype',
@@ -157,6 +157,11 @@ class PersonAdmin(admin.ModelAdmin):
                     ),
                 }),
             )
+            self.readonly_fields = [
+                'email_address_semiprivate_display',
+                'phone_number_primary_semiprivate_display',
+                'phone_number_secondary_semiprivate_display',
+            ]
         else:
             self.fieldsets = (
                 ('Privacy', {
