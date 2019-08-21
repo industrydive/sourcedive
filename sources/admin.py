@@ -28,7 +28,6 @@ class InteractionInline(admin.TabularInline):
 
 
 class InteractionAdmin(admin.ModelAdmin):
-    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
     list_display = ['interviewee', 'interaction_type', 'privacy_level', 'date_time']
     filter_horizontal = ['interviewer']
 
@@ -42,7 +41,7 @@ class InteractionAdmin(admin.ModelAdmin):
         obj = Interaction.objects.get(id=object_id)
         if obj.privacy_level == 'searchable' and obj.created_by != request.user:
             self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes_semiprivate_display', 'created_by']
-            self.readonly_fields = ['created_by', 'notes_semiprivate_display']
+            self.readonly_fields = ['created_by', 'privacy_level', 'notes_semiprivate_display']
         else:
             self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'created_by']
             self.readonly_fields = ['created_by']
@@ -158,6 +157,9 @@ class PersonAdmin(admin.ModelAdmin):
                 }),
             )
             self.readonly_fields = [
+                'created_by',
+                'entry_method',
+                'entry_type',
                 'email_address_semiprivate_display',
                 'phone_number_primary_semiprivate_display',
                 'phone_number_secondary_semiprivate_display',
@@ -209,6 +211,11 @@ class PersonAdmin(admin.ModelAdmin):
                     ),
                 }),
             )
+            self.readonly_fields = [
+                'created_by',
+                'entry_method',
+                'entry_type',
+            ]
         return self.changeform_view(request, object_id, form_url, extra_context)
 
 
