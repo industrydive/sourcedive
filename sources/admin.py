@@ -23,8 +23,12 @@ class IndustryAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
+# TO-DO: need a way to hide private interactions in the inline
+# see https://stackoverflow.com/a/47261297
 class InteractionInline(admin.TabularInline):
     model = Interaction
+    # the fields are listed explicity to avoid showing notes, which can't be easily displayed like the other hidden field values
+    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by']
 
 
 class InteractionAdmin(admin.ModelAdmin):
