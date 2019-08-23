@@ -45,7 +45,8 @@ class InteractionInline(admin.TabularInline):
 
 
 class InteractionAdmin(admin.ModelAdmin):
-    list_display = ['interviewee', 'interaction_type', 'privacy_level', 'date_time']
+    list_display = ['interviewee', 'interaction_type', 'date_time', 'created_by', 'privacy_level']
+    list_filter = ['interaction_type']
     filter_horizontal = ['interviewer']
 
 
