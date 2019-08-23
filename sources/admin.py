@@ -45,7 +45,7 @@ class InteractionInline(admin.TabularInline):
 
 
 class InteractionAdmin(admin.ModelAdmin):
-    list_display = ['interviewee', 'interaction_type', 'date_time', 'created_by', 'privacy_level']
+    list_display = ['interviewee', 'interaction_type', 'date_time', 'created_by', 'interviewers_listview', 'privacy_level']
     list_filter = ['interaction_type']
     filter_horizontal = ['interviewer']
 
@@ -86,6 +86,13 @@ class InteractionAdmin(admin.ModelAdmin):
 
         ## save
         super(InteractionAdmin, self).save_model(request, obj, form, change)
+
+
+    def interviewers_listview(self, obj):
+        interviewers_list = obj.interviewer.all()
+        interviewers = [interviewer.username for interviewer in interviewers_list]
+        return ', '.join(interviewers)
+    interviewers_listview.short_description = 'Interviewer(s)'
 
 
     def notes_semiprivate_display(self, obj):
