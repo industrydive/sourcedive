@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.db.models import Q
 from django.utils.html import format_html
 
-from .models import (
+# from sources.forms import InteractionInlineForm
+from sources.models import (
     Expertise,
     Industry,
     Interaction,
@@ -28,7 +29,28 @@ class IndustryAdmin(admin.ModelAdmin):
 class InteractionInline(admin.TabularInline):
     model = Interaction
     # the fields are listed explicity to avoid showing notes, which can't be easily displayed like the other hidden field values
-    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by']
+    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
+    # form = InteractionInlineForm
+
+
+    def get_formset(self, request, obj, *args, **kwargs):
+        # import pdb; pdb.set_trace()
+        from django.forms import inlineformset_factory
+
+        formset = super(InteractionInline, self).get_formset(request, obj, *args, **kwargs)
+
+        all_fields = ('privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes')
+        limited_fields = ('privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes')  # add note with message
+
+        if obj.privacy_level == 'searchable' and obj.created_by != request.user:
+            # formset.form.declared_fields['notes'] = 'Please contact {} for this information'.format(obj.created_by)
+            InteractionFormSet = inlineformset_factory(Person, Interaction, fields=limited_fields)
+        #     self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by']
+        else:
+            InteractionFormSet = inlineformset_factory(Person, Interaction, fields=all_fields)
+        #     self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
+        # formset.form.declared_fields = self.fields
+        return InteractionFormSet
 
 
     def get_queryset(self, request):
@@ -45,7 +67,7 @@ class InteractionInline(admin.TabularInline):
 
 
 class InteractionAdmin(admin.ModelAdmin):
-    list_display = ['interviewee', 'interaction_type', 'date_time', 'created_by', 'privacy_level']
+    list_display = ['interviewee', 'interaction_type', 'date_time', 'created_by', 'interviewers_listview', 'privacy_level']
     list_filter = ['interaction_type']
     filter_horizontal = ['interviewer']
 
@@ -86,6 +108,13 @@ class InteractionAdmin(admin.ModelAdmin):
 
         ## save
         super(InteractionAdmin, self).save_model(request, obj, form, change)
+
+
+    def interviewers_listview(self, obj):
+        interviewers_list = obj.interviewer.all()
+        interviewers = [interviewer.username for interviewer in interviewers_list]
+        return ', '.join(interviewers)
+    interviewers_listview.short_description = 'Interviewer(s)'
 
 
     def notes_semiprivate_display(self, obj):
