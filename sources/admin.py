@@ -31,6 +31,19 @@ class InteractionInline(admin.TabularInline):
     fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by']
 
 
+    def get_queryset(self, request):
+        """ only show private interactions to the person who created them """
+        qs = super(InteractionInline, self).get_queryset(request)
+
+        # if the interaction is not private, then include them
+        # if the interaction is private and created by that user, then include them
+        return qs.filter(
+            # IMPORANT! don't give superusers access to everything
+            ~Q(privacy_level__contains='private') | \
+            Q(created_by=request.user, privacy_level='private_individual')
+        )
+
+
 class InteractionAdmin(admin.ModelAdmin):
     list_display = ['interviewee', 'interaction_type', 'privacy_level', 'date_time']
     filter_horizontal = ['interviewer']
