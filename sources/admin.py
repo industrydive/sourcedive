@@ -29,28 +29,16 @@ class IndustryAdmin(admin.ModelAdmin):
 class InteractionInline(admin.TabularInline):
     model = Interaction
     # the fields are listed explicity to avoid showing notes, which can't be easily displayed like the other hidden field values
-    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
-    # form = InteractionInlineForm
+    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes_semiprivate']
+    extra = 0
+    readonly_fields = ['notes_semiprivate']
+    show_change_link = True
 
 
-    def get_formset(self, request, obj, *args, **kwargs):
-        # import pdb; pdb.set_trace()
-        from django.forms import inlineformset_factory
-
-        formset = super(InteractionInline, self).get_formset(request, obj, *args, **kwargs)
-
-        all_fields = ('privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes')
-        limited_fields = ('privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes')  # add note with message
-
-        if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            # formset.form.declared_fields['notes'] = 'Please contact {} for this information'.format(obj.created_by)
-            InteractionFormSet = inlineformset_factory(Person, Interaction, fields=limited_fields)
-        #     self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by']
-        else:
-            InteractionFormSet = inlineformset_factory(Person, Interaction, fields=all_fields)
-        #     self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
-        # formset.form.declared_fields = self.fields
-        return InteractionFormSet
+    def notes_semiprivate(self, obj):
+        display_text = 'Please contact <strong>{}</strong> for this information'.format(obj.created_by)
+        return format_html(display_text)
+    notes_semiprivate.short_description = 'Notes'
 
 
     def get_queryset(self, request):
