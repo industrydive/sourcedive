@@ -29,16 +29,20 @@ class IndustryAdmin(admin.ModelAdmin):
 class InteractionInline(admin.TabularInline):
     model = Interaction
     # the fields are listed explicity to avoid showing notes, which can't be easily displayed like the other hidden field values
-    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes_semiprivate']
-    extra = 0
-    readonly_fields = ['notes_semiprivate']
+    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes_view']
+
+    max_num = 0
+    readonly_fields = fields  # ['notes_semiprivate']
     show_change_link = True
 
 
-    def notes_semiprivate(self, obj):
-        display_text = 'Please contact <strong>{}</strong> for this information'.format(obj.created_by)
+    def notes_view(self, obj):
+        from django.urls import reverse
+
+        url = reverse('admin:sources_interaction_change', args=(obj.id,))
+        display_text = '<a href="{}">View details to read notes</a>'.format(url)
         return format_html(display_text)
-    notes_semiprivate.short_description = 'Notes'
+    notes_view.short_description = 'Notes'
 
 
     def get_queryset(self, request):
@@ -52,6 +56,20 @@ class InteractionInline(admin.TabularInline):
             ~Q(privacy_level__contains='private') | \
             Q(created_by=request.user, privacy_level='private_individual')
         )
+
+
+class InteractionNewInline(admin.TabularInline):
+    model = Interaction
+    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
+    extra = 0
+    verbose_name = 'interaction (be sure to "save" after)'
+
+
+    def get_queryset(self, request):
+        """ show none """
+        qs = super(InteractionNewInline, self).get_queryset(request)
+
+        return qs.none()
 
 
 class InteractionAdmin(admin.ModelAdmin):
@@ -126,7 +144,7 @@ class PersonAdmin(admin.ModelAdmin):
     # save_as = True
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
-    inlines = (InteractionInline,)
+    inlines = (InteractionInline, InteractionNewInline,)
 
 
     def email_address_semiprivate_display(self, obj):
