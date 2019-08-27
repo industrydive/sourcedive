@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.db.models import Q
+from django.urls import reverse
 from django.utils.html import format_html
 
-# from sources.forms import InteractionInlineForm
 from sources.models import (
     Expertise,
     Industry,
@@ -37,10 +37,11 @@ class InteractionInline(admin.TabularInline):
 
 
     def notes_view(self, obj):
-        from django.urls import reverse
-
         url = reverse('admin:sources_interaction_change', args=(obj.id,))
-        display_text = '<a href="{}">View details to read notes</a>'.format(url)
+        if obj.privacy_level == 'searchable':
+            display_text = 'Contact <strong>{}</strong> for these notes'.format(obj.created_by)
+        else:
+            display_text = obj.notes
         return format_html(display_text)
     notes_view.short_description = 'Notes'
 
