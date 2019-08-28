@@ -138,12 +138,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Python social auth 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.twitter.TwitterOAuth',
-    'social.backends.facebook.FacebookOAuth2',
+    # 'social.backends.twitter.TwitterOAuth',
+    # 'social.backends.facebook.FacebookOAuth2',
     'social.backends.google.GoogleOAuth2',
     'social_core.backends.google.GoogleOpenId',
     'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.yahoo.YahooOpenId',
+    # 'social_core.backends.yahoo.YahooOpenId',
     'django.contrib.auth.backends.ModelBackend',
 )
 
