@@ -4,6 +4,6 @@ db.sqlite3
 .DS_Store
 misc/
 Pipfile*
-settings_private*
+settings_private.py
 static/
 latest_export*
