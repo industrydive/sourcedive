@@ -4,9 +4,11 @@ This is an open-source tool for creating a database of sources.
 
 https://docs.bitnami.com/google/infrastructure/django/get-started/start-django-project/
 
+# Developer Setup
+
 The following instructions are intended for a developer to set this up locally
 
-## Prep
+## Preparation
 
     Make sure you have docker and docker-compose installed
 
@@ -20,9 +22,10 @@ Add the private settings file
 
 	vim sourcedive/settings_private.py
 
-Paste the following (=and fill all the `UPDATE` vars if you need to (only need to update SECRET_KEY to get the appp to run.)
+Paste the following and update all the `UPDATE` vars (if needed).
+You only need to update the SECRET_KEY (The value can be any random string) to get the app to run. 
 
-## private settings
+### Private settings
 
     SECRET_KEY = '' # UPDATE: Can be whatever 
     
@@ -78,15 +81,18 @@ Paste the following (=and fill all the `UPDATE` vars if you need to (only need t
     docker exec sourcedive_app_1 python manage.py migrate
     
 ## Create a superuser
+
     docker exec -it sourcedive_app_1 sh
     python manage.py createsuperuser # follow the command prompts
     
 ## Login into the app
+
     Go to http://127.0.0.1:8080/admin/login/?next=/admin/
     Select 'Enter credentials' and use your superuser from the previous step
     
     
-    
+# Ubuntu Setup
+
 The following instructions are intended for Ubuntu 16.
 
 # Prep the system
