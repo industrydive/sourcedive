@@ -4,6 +4,89 @@ This is an open-source tool for creating a database of sources.
 
 https://docs.bitnami.com/google/infrastructure/django/get-started/start-django-project/
 
+The following instructions are intended for a developer to set this up locally
+
+## Prep
+
+    Make sure you have docker and docker-compose installed
+
+## Setup the app
+
+Clone the repo (or your fork)
+
+	git clone git@github.com:industrydive/sourcedive.git
+	
+Add the private settings file
+
+	vim sourcedive/settings_private.py
+
+Paste the following (=and fill all the `UPDATE` vars if you need to (only need to update SECRET_KEY to get the appp to run.)
+
+## private settings
+
+    SECRET_KEY = '' # UPDATE: Can be whatever 
+    
+    ALLOWED_HOSTS = [
+        # local
+        '127.0.0.1',
+        'localhost',
+        # prod
+        '', # UPDATE
+        # test
+        '', # UPDATE
+    ]
+    INTERNAL_IPS = ['127.0.0.1']
+    
+    ## for local and test servers
+    TEST_ENV = True
+    ## for prod server
+    # TEST_ENV = False
+    
+    ## project info
+    
+    PROJECT_NAME = '' # UPDATE
+    
+    ## database
+    db_engine = 'django.db.backends.postgresql_psycopg2'
+    db_name = 'sourcedive'
+    db_user = 'sourcediveuser'
+    db_password = 'sourcediveuser'
+    db_host = 'db'
+    db_port = '5432'
+    
+    ## social auth
+    SOCIAL_AUTH_PASSWORDLESS = True
+    SOCIAL_AUTH_ALWAYS_ASSOCIATE = True
+    
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '' # UPDATE
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '' # UPDATE
+    
+    SOCIAL_AUTH_TWITTER_KEY = '' # UPDATE
+    SOCIAL_AUTH_TWITTER_SECRET = '' # UPDATE
+    
+    # SOCIAL_AUTH_FACEBOOK_KEY = '' # UPDATE
+    # SOCIAL_AUTH_FACEBOOK_SECRET = '' # UPDATE
+    # SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+	
+## Build & start the image
+
+    docker-compose build
+    docker-compose up
+    
+## Run the migrations
+    
+    docker exec sourcedive_app_1 python manage.py migrate
+    
+## Create a superuser
+    docker exec -it sourcedive_app_1 sh
+    python manage.py createsuperuser # follow the command prompts
+    
+## Login into the app
+    Go to http://127.0.0.1:8080/admin/login/?next=/admin/
+    Select 'Enter credentials' and use your superuser from the previous step
+    
+    
+    
 The following instructions are intended for Ubuntu 16.
 
 # Prep the system
