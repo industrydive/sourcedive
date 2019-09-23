@@ -13,6 +13,7 @@ PREFIX_CHOICES = (
 )
 
 PRIVACY_CHOICES = (
+    # ('', '-----'),
     ('public', 'Public (whole newsroom)'),
     ('searchable', 'Semi-private (searchable by newsroom)'),
     # ('private_team', 'Private (only team)'),

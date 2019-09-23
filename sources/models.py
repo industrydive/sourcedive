@@ -50,7 +50,7 @@ class Organization(BasicInfo):
 
 
 class PrivacyMixin(models.Model):
-    privacy_level = models.CharField(choices=PRIVACY_CHOICES, default='public', max_length=255, blank=False, help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not certain details.')
+    privacy_level = models.CharField(choices=PRIVACY_CHOICES, max_length=255, blank=False, help_text='Who has access to view? Searchable (semi-private) means the general information is available, but not certain details.')
 
     class Meta:
         abstract = True
