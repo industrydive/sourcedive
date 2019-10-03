@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
 from sourcedive.settings import TEST_ENV
-from sources.models import Person
+from sources.models import Person, Expertise, Industry, Organization
 
 
 def create_person(counter, failed_rows, data_dict):
@@ -29,7 +29,7 @@ def create_person(counter, failed_rows, data_dict):
             message = 'Row {} for {}: {}\n'.format(counter, email_address, e)
             print(message)
     # except:
-        # failed_rows.append(counter)
+    #     failed_rows.append(counter)
     # try:
     #     obj, created = Person.objects.create(**csv_to_model)
     # except:
@@ -102,20 +102,45 @@ def import_csv(csv_file):
                     timezone_value = row['timezone']
                 else:
                     timezone_value = None
+
+                # MANY-TO-MANY fields
+                # expertise
+                expertise_value = row['expertise']
+                if expertise_value:
+                    expertise_obj = Expertise.objects.get_or_create(
+                        name=expertise_value
+                    )
+                # industry
+                industry_value = row['industry']
+                if industry_value:
+                    industry_obj = Industry.objects.get_or_create(
+                        name=industry_value
+                    )
+                organization_value = row['organization']
+                # organization
+                if organization_value:
+                    organization_obj = Organization.objects.get_or_create(
+                        name=organization_value
+                    )
+                else:
+                    organization_obj = None
+
                 ## map fields from csv to Person model
                 csv_to_model_dict = {
                     # 'role': row['role'],
+                    'privacy_level': row['privacy_level'],
                     'first_name': row['first_name'],
                     'last_name': row['last_name'],
                     'type_of_expert': row['type_of_expert'],
-                    'expertise': row['expertise'], ## m2m field
+                    'expertise': expertise_obj, ## m2m field
                     'title': row['title'],
-                    'organization': row['organization'], ## m2m field
+                    'organization': organization_obj, ## m2m field
+                    'industry': industry_obj, ## m2mfield
                     'city': row['city'],
                     'state': row['state'],
                     'country': row['country'],
-                    'phone_number_primary': row['phone_primary'],
-                    'phone_number_secondary': row['phone_secondary'],
+                    'phone_number_primary': row['phone_number_primary'],
+                    'phone_number_secondary': row['phone_number_secondary'],
                     'twitter': row['twitter'],
                     'notes': row['notes'],
                     # 'website': row['website'],
@@ -130,7 +155,7 @@ def import_csv(csv_file):
                     # 'status': status,
                     'timezone': timezone_value,
                 }
-                create_person(csv_to_model_dict)
+                create_person(csv_to_model_dict, failed_rows, csv_to_model_dict)
         # message = '\nThe following rows failed: \n\n {}'.format(failed_rows)
         # print(message)
 
