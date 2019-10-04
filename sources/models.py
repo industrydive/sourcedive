@@ -22,7 +22,7 @@ class BasicInfo(models.Model):
 
 
 class Expertise(BasicInfo):
-    name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Type of expertise')
+    name = models.CharField(max_length=255, null=True, blank=True, unique=True, verbose_name='Type of expertise')
 
     class Meta:
         verbose_name_plural = 'Expertise'
@@ -30,8 +30,9 @@ class Expertise(BasicInfo):
     def __str__(self):
         return '{}'.format(self.name)
 
+
 class Industry(BasicInfo):
-    name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Industry name')
+    name = models.CharField(max_length=255, null=True, blank=True, unique=True, verbose_name='Industry name')
 
     class Meta:
         verbose_name_plural = 'Industries'
@@ -41,7 +42,7 @@ class Industry(BasicInfo):
 
 
 class Organization(BasicInfo):
-    name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization name')
+    name = models.CharField(max_length=255, null=True, blank=True, unique=True, verbose_name='Organization name')
     # location = models.ForeignKey(Location, null=True, blank=True)
     # website = models.URLField(max_length=200, null=True, blank=True)
 
