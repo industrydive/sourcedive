@@ -11,7 +11,7 @@ from sourcedive.settings import TEST_ENV
 from sources.models import Person, Expertise, Industry, Organization
 
 
-def create_person(counter, failed_rows, data_dict):
+def create_person(data_dict, m2m_dict):
     """
     Create a Person in the system as part of the import process. Works for
     both import file types.
@@ -20,14 +20,37 @@ def create_person(counter, failed_rows, data_dict):
     # check if the person already exists:
     try:
         exists = Person.objects.get(email_address=email_address)
-        counter -= 1
+        create_message = f'Skipping: Person with {email_address} already exists.'
     except:
-        try:
-            obj, created = Person.objects.update_or_create(**data_dict)
-        except Exception as e:
-            failed_rows += 1
-            message = 'Row {} for {}: {}\n'.format(counter, email_address, e)
-            print(message)
+        # try:
+        person_obj, created = Person.objects.update_or_create(**data_dict)
+        # MANY-TO-MANY fields
+        if m2m_dict:
+            # expertise
+            expertise_values = m2m_dict['expertise']
+            if expertise_values:
+                values_list = [value.strip() for value in expertise_values.split(',')]
+                for value in values_list:
+                    person_obj.expertise.get_or_create(name=value)
+            # industry
+            industry_values = m2m_dict['industries']
+            if industry_values:
+                values_list = [value.strip() for value in industry_values.split(',')]
+                for value in values_list:
+                    person_obj.industries.get_or_create(name=value)
+            # organization
+            organization_values = m2m_dict['organization']
+            if organization_values:
+                values_list = [value.strip() for value in organization_values.split(',')]
+                for value in values_list:
+                    person_obj.organization.get_or_create(name=value)
+            if created:
+                create_message = f'Success: {person_obj}'
+            else:
+                create_message = f'Failed: {person_obj}'
+        # except Exception as e:
+        #     create_message = f'Error for {email_address}: {e}\n'
+    print(create_message)
     # except:
     #     failed_rows.append(counter)
     # try:
@@ -35,18 +58,6 @@ def create_person(counter, failed_rows, data_dict):
     # except:
     #     message = 'Create person' + str(sys.exc_info())
     #     print(message)
-    ## set the related user and email them
-    try:
-        call_command('set_related_user', email_address)
-    except:
-        message = 'Set related user: ' + str(sys.exc_info())
-    #     print(message)
-    # if not TEST_ENV:
-        # try:
-        #     call_command('email_user', email_address, status)
-        # except:
-        #     message = 'Email user:' + str(sys.exc_info())
-        #     print(message)
 
 
 def import_csv(csv_file):
@@ -84,46 +95,27 @@ def import_csv(csv_file):
                 if row_as_dict['rating_avg'] == '':
                     row_as_dict.pop('rating_avg')
                 try:
-                    create_person(counter, failed_rows, row_as_dict)
+                    create_person(row_as_dict)
                 except:
                     email_address = row_as_dict['email_address']
-                    message = 'Failed to create a person for {}. \nException: {str(sys.exc_info())}'.format(email_address)
+                    message = 'Failed to create a person for {}. \nException: {}'.format(
+                            email_address,
+                            str(sys.exc_info())
+                        )
                     print(message)
     else:
         with open(csv_file) as file:
             csv_reader = csv.DictReader(file)
             ## loops thru the rows
-            for row in csv_reader:
-                counter += 1
+            for counter, row in enumerate(csv_reader):
                 ## special fields
                 status = 'added_by_admin'
                 email_address = row['email_address']
-                if isinstance(row['timezone'], int):
-                    timezone_value = row['timezone']
+                timezone =row['timezone']
+                if isinstance(timezone, int):
+                    timezone_value = timezone
                 else:
                     timezone_value = None
-
-                # MANY-TO-MANY fields
-                # expertise
-                expertise_value = row['expertise']
-                if expertise_value:
-                    expertise_obj = Expertise.objects.get_or_create(
-                        name=expertise_value
-                    )
-                # industry
-                industry_value = row['industry']
-                if industry_value:
-                    industry_obj = Industry.objects.get_or_create(
-                        name=industry_value
-                    )
-                organization_value = row['organization']
-                # organization
-                if organization_value:
-                    organization_obj = Organization.objects.get_or_create(
-                        name=organization_value
-                    )
-                else:
-                    organization_obj = None
 
                 ## map fields from csv to Person model
                 csv_to_model_dict = {
@@ -132,10 +124,10 @@ def import_csv(csv_file):
                     'first_name': row['first_name'],
                     'last_name': row['last_name'],
                     'type_of_expert': row['type_of_expert'],
-                    'expertise': expertise_obj, ## m2m field
+                    # 'expertise': expertise_id, ## m2m field
                     'title': row['title'],
-                    'organization': organization_obj, ## m2m field
-                    'industry': industry_obj, ## m2mfield
+                    # 'organization': organization_id, ## m2m field
+                    # 'industries': industry_id, ## m2mfield
                     'city': row['city'],
                     'state': row['state'],
                     'country': row['country'],
@@ -155,7 +147,12 @@ def import_csv(csv_file):
                     # 'status': status,
                     'timezone': timezone_value,
                 }
-                create_person(csv_to_model_dict, failed_rows, csv_to_model_dict)
+                m2m_dict = {
+                    'expertise': row['expertise'],
+                    'industries': row['industries'],
+                    'organization': row['organization'],
+                }
+                create_person(csv_to_model_dict, m2m_dict)
         # message = '\nThe following rows failed: \n\n {}'.format(failed_rows)
         # print(message)
 
@@ -168,10 +165,10 @@ def import_csv(csv_file):
     message = 'Import length:\t\t {} \n'.format(import_length)
     print(message)
 
-    message = 'Imported {} rows'.format(counter)
-    print(message)
-    message = '{} rows failed'.format(failed_rows)
-    print(message)
+    # message = 'Imported {} rows'.format(counter)
+    # print(message)
+    # message = '{} rows failed'.format(failed_rows)
+    # print(message)
 
 
 class Command(BaseCommand):
