@@ -23,28 +23,36 @@ def create_person(data_dict, m2m_dict):
         create_message = f'Skipping: Person with {email_address} already exists.'
     except:
         # try:
-        person_obj, created = Person.objects.update_or_create(**data_dict)
-        # MANY-TO-MANY fields
+        person_obj, person_created = Person.objects.update_or_create(**data_dict)
+        # populate MANY-TO-MANY fields
         if m2m_dict:
-            # expertise
+            # created_by (FK)
+            created_by_email = m2m_dict['created_by']
+            user, user_created = User.objects.get_or_create(email=created_by_email)
+            person_qs = Person.objects.filter(email_address=person_obj.email_address)
+            person_qs.update(created_by=user)
+            # expertise (M2M)
             expertise_values = m2m_dict['expertise']
             if expertise_values:
                 values_list = [value.strip() for value in expertise_values.split(',')]
                 for value in values_list:
-                    person_obj.expertise.get_or_create(name=value)
-            # industry
+                    expertise_obj, expertise_created = Expertise.objects.get_or_create(name=value)
+                    person_obj.expertise.add(expertise_obj)
+            # industry (M2M)
             industry_values = m2m_dict['industries']
             if industry_values:
                 values_list = [value.strip() for value in industry_values.split(',')]
                 for value in values_list:
-                    person_obj.industries.get_or_create(name=value)
-            # organization
+                    industry_obj, industry_created = Industry.objects.get_or_create(name=value)
+                    person_obj.industries.add(industry_obj)
+            # organization (M2M)
             organization_values = m2m_dict['organization']
             if organization_values:
                 values_list = [value.strip() for value in organization_values.split(',')]
                 for value in values_list:
-                    person_obj.organization.get_or_create(name=value)
-            if created:
+                    organization_obj, organization_created = Organization.objects.get_or_create(name=value)
+                    person_obj.organization.add(organization_obj)
+            if person_created:
                 create_message = f'Success: {person_obj}'
             else:
                 create_message = f'Failed: {person_obj}'
@@ -148,6 +156,7 @@ def import_csv(csv_file):
                     'timezone': timezone_value,
                 }
                 m2m_dict = {
+                    'created_by': row['created_by'],
                     'expertise': row['expertise'],
                     'industries': row['industries'],
                     'organization': row['organization'],
