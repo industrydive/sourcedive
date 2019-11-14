@@ -40,7 +40,7 @@ class InteractionInline(admin.TabularInline):
         """ Generate note text replacement depending on privacy """
         url = reverse('admin:sources_interaction_change', args=(obj.id,))
         if obj.privacy_level == 'searchable':
-            display_text = 'Contact <strong>{}</strong> for these notes. <a href="{}">View interaction page.</a>.'.format(obj.created_by, url)
+            display_text = 'Contact <strong>{}</strong> for these notes. <a href="{}">View interaction page</a>.'.format(obj.created_by, url)
         else:
             display_text = obj.notes
         return format_html(display_text)
