@@ -1,8 +1,6 @@
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-
-from sources.models import Expertise, Industry, Interaction, Organization, Source
 
 
 def add_permissions_to_new_whitelisted_users(backend, user, response, *args, **kwargs):
