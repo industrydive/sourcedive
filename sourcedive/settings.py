@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'sources.apps.SourcesConfig',
     # 'social.apps.django_app.default',
     'social_django',
-    'debug_toolbar',
+    # 'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -40,7 +40,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     # 'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
@@ -64,7 +64,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'sourcedive.wsgi.application'
+# WSGI_APPLICATION = 'sourcedive.wsgi.application'
 
 
 # Database
