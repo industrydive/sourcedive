@@ -1,0 +1,16 @@
+version: '3.0'
+services:
+  db:
+    build: ./build/postgres
+    ports:
+      - "5432:5432"
+  app:
+    build:
+      context: .
+      dockerfile: ./build/app/Dockerfile
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"

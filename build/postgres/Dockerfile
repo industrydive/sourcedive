@@ -1,0 +1,4 @@
+FROM postgres
+ENV POSTGRES_USER sourcediveuser
+ENV POSTGRES_PASSWORD sourcediveuser
+ENV POSTGRES_DB sourcedive
