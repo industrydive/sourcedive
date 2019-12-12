@@ -33,8 +33,8 @@ db_engine = 'django.db.backends.postgresql_psycopg2'
 db_name = ''  # UPDATE see lastpass
 db_user = ''  # UPDATE see lastpass
 db_password = ''  # UPDATE see lastpass
-db_host = 'localhost'
-db_port = ''
+db_host = 'db'
+db_port = '5432'
 
 ## social auth
 SOCIAL_AUTH_PASSWORDLESS = True
