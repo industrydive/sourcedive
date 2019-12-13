@@ -30,9 +30,9 @@ PROJECT_NAME = 'SourceDive'
 
 ## database local
 db_engine = 'django.db.backends.postgresql_psycopg2'
-db_name = ''  # UPDATE see lastpass
-db_user = ''  # UPDATE see lastpass
-db_password = ''  # UPDATE see lastpass
+db_name = 'sourcedive'
+db_user = 'sourcediveuser'
+db_password = 'sourcediveuser'
 db_host = 'db'
 db_port = '5432'
 
