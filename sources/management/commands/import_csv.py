@@ -129,8 +129,7 @@ def import_csv(csv_file):
                 csv_to_model_dict = {
                     # 'role': row['role'],
                     'privacy_level': row['privacy_level'],
-                    'first_name': row['first_name'],
-                    'last_name': row['last_name'],
+                    'name': row['name'],
                     'type_of_expert': row['type_of_expert'],
                     # 'expertise': expertise_id, ## m2m field
                     'title': row['title'],
@@ -145,7 +144,6 @@ def import_csv(csv_file):
                     'notes': row['notes'],
                     # 'website': row['website'],
                     'prefix': row['prefix'],
-                    # 'middle_name': '',
                     # 'language': 'English', ## m2mfield
                     # 'approved_by_admin': True,
                     # 'approved_by_user': True,

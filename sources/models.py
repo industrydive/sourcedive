@@ -66,12 +66,10 @@ class Person(BasicInfo, PrivacyMixin):
     entry_type = models.CharField(max_length=15, null=True, blank=True, default='manual')
     expertise = models.ManyToManyField(Expertise, blank=True)
     # expertise = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Expertise')
-    first_name = models.CharField(max_length=255, null=True, blank=False, verbose_name='First name')
     industries = models.ManyToManyField(Industry, blank=True)
-    last_name = models.CharField(max_length=255, null=True, blank=False, verbose_name='Last name')
-    middle_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Middle name')
     language = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Language')
     linkedin = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='LinkedIn URL')
+    name = models.CharField(max_length=255, null=True, blank=False)
     notes = models.TextField(null=True, blank=True)
     organization = models.ManyToManyField(Organization, blank=True)
     # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization') # , help_text='Comma-separated list')
@@ -99,15 +97,7 @@ class Person(BasicInfo, PrivacyMixin):
         return super(Person, self).save(*args, **kwargs)
 
     def __str__(self):
-        if self.prefix and self.middle_name:
-            name = '{} {} {} {}'.format(self.prefix, self.first_name, self.middle_name, self.last_name)
-        elif self.prefix:
-            name = '{} {} {}'.format(self.prefix, self.first_name, self.last_name)
-        elif self.middle_name:
-            name = '{} {} {}'.format(self.first_name, self.middle_name, self.last_name)
-        else:
-            name = '{} {}'.format(self.first_name, self.last_name)
-        return name
+        return self.name
 
     class Meta:
         ordering = ['-updated']
