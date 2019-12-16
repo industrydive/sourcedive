@@ -138,9 +138,9 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ['last_name', 'first_name', 'updated', 'created_by', 'privacy_level']
+    list_display = ['name', 'updated', 'created_by', 'privacy_level']
     list_filter = ['organization__name', 'expertise__name', 'timezone', 'city', 'state', 'privacy_level']
-    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'last_name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
+    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
     # save_as = True
@@ -183,9 +183,7 @@ class PersonAdmin(admin.ModelAdmin):
                     'fields': (
                         'prefix',
                         'pronouns',
-                        'first_name',
-                        'middle_name',
-                        'last_name',
+                        'name',
                         'title',
                         'industries',
                         'organization',
@@ -238,9 +236,7 @@ class PersonAdmin(admin.ModelAdmin):
                     'fields': (
                         'prefix',
                         'pronouns',
-                        'first_name',
-                        'middle_name',
-                        'last_name',
+                        'name',
                         'title',
                         'industries',
                         'organization',
