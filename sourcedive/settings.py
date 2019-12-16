@@ -126,7 +126,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-# SOCIAL_AUTH_LOGIN_REDIRECT_URL='/admin/sources/source'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL='/admin/sources/person/'
 
 ## explanation and other options: https://python-social-auth-docs.readthedocs.io/en/latest/pipeline.html
 
