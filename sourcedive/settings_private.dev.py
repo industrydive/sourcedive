@@ -20,14 +20,6 @@ TEST_ENV = True
 
 PROJECT_NAME = 'SourceDive'
 
-## database staging
-# db_engine = 'django.db.backends.postgresql_psycopg2'
-# db_name = ''  # UPDATE see lastpass
-# db_user = ''  # UPDATE see lastpass
-# db_password = ''  # UPDATE see lastpass
-# db_host = 'localhost'
-# db_port = ''
-
 ## database local
 db_engine = 'django.db.backends.postgresql_psycopg2'
 db_name = 'sourcedive'
