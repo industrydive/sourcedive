@@ -34,6 +34,7 @@ class InteractionInline(admin.TabularInline):
     max_num = 0
     readonly_fields = fields  # ['notes_semiprivate']
     show_change_link = True
+    classes = ['interactions-previous']
 
 
     def notes_view(self, obj):
@@ -65,6 +66,7 @@ class InteractionNewInline(admin.TabularInline):
     fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
     extra = 0
     verbose_name = 'interaction (be sure to "save" after)'
+    classes = ['interactions-new']
 
 
     def get_queryset(self, request):
