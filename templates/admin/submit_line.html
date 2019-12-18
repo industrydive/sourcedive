@@ -1,0 +1,13 @@
+{% extends 'admin/submit_line.html' %}
+
+{% block submit-row %}
+
+  {% if not '?edit=true' in request.get_full_path %}
+    <a href="?edit=true">Edit</a>
+  {% elif '?edit=true' in request.get_full_path %}
+    <a href="{{ request.path }}">View</a>
+  {% endif %}
+
+  {{ block.super }}
+
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db.models import Q
+from django.contrib.admin.utils import flatten_fieldsets
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -295,6 +296,13 @@ class PersonAdmin(admin.ModelAdmin):
         )
 
 
+    def get_readonly_fields(self, request, obj=None):
+        if self.fieldsets and 'edit' not in request.GET:
+            return flatten_fieldsets(self.fieldsets)
+        else:
+            return self.readonly_fields
+
+
     def save_model(self, request, obj, form, change):
         ## associate the Person being created with the User who created them
         current_user = request.user
@@ -312,3 +320,5 @@ admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(Industry, IndustryAdmin)
 admin.site.register(Interaction, InteractionAdmin)
 admin.site.register(Person, PersonAdmin)
+
+admin.site.site_header = 'Source Dive'
