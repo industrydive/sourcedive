@@ -3,9 +3,9 @@
 {% block submit-row %}
 
   {% if not '?edit=true' in request.get_full_path %}
-    <a href="?edit=true">Edit</a>
+    <input type="submit" value="Edit" name="_edit">
   {% elif '?edit=true' in request.get_full_path %}
-    <a href="{{ request.path }}">View</a>
+    <input type="submit" value="View" name="_view">
   {% endif %}
 
   {{ block.super }}

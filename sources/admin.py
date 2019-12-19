@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db.models import Q
 from django.contrib.admin.utils import flatten_fieldsets
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -301,6 +302,17 @@ class PersonAdmin(admin.ModelAdmin):
             return flatten_fieldsets(self.fieldsets)
         else:
             return self.readonly_fields
+
+
+    def response_change(self, request, obj):
+        url = reverse('admin:sources_person_change', args=(obj.id,))
+
+        if '_edit' in request.POST:
+            return HttpResponseRedirect(url + '?edit=true')
+        elif '_view' in request.POST:
+            return HttpResponseRedirect(url)
+
+        return super(PersonAdmin, self).response_change(request, obj)
 
 
     def save_model(self, request, obj, form, change):
