@@ -13,6 +13,10 @@ from sources.models import (
 )
 
 
+# for SimpleListFilter classes
+all_sources = Person.objects.all()
+
+
 class ExpertiseAdmin(admin.ModelAdmin):
     fields = ['name']
     list_display = ['name']
@@ -140,28 +144,32 @@ class OrganizationAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
+def get_displayable_list(private_items, non_private_items):
+    overlap_set = set(private_items) & set(non_private_items)
+
+    set(non_private_items).update(overlap_set)
+
+    displayable_list = list(set(non_private_items))
+
+    return displayable_list
+
+
 class IndustryFilter(SimpleListFilter):
-    title = 'Industry name'
+    title = 'Industry'
     parameter_name = 'industries__name'
 
-    all_sources = Person.objects.all()
-
-    private_sources = all_sources.filter(privacy_level='private_individual')
-    private_industries = [industry.name for source in private_sources for industry in source.industries.all()]
-
-    non_private_sources = all_sources.exclude(privacy_level='private_individual')
-    non_private_industries = [industry.name for source in non_private_sources for industry in source.industries.all()]
-
-    overlap_set = set(private_industries) & set(non_private_industries)
-
-    set(non_private_industries).update(overlap_set)
-
-    displayable_industries_list = list(set(non_private_industries))
-
     def lookups(self, request, model_admin):
-        filters_list = [(industry, industry) for industry in self.displayable_industries_list]
+        private_sources = all_sources.filter(privacy_level='private_individual')
+        private_industries = [industry.name for source in private_sources for industry in source.industries.all()]
+
+        non_private_sources = all_sources.exclude(privacy_level='private_individual')
+        non_private_industries = [industry.name for source in non_private_sources for industry in source.industries.all()]
+
+        options = get_displayable_list(private_industries, non_private_industries)
+        filters_list = [(option, option) for option in options]
 
         return tuple(filters_list)
+
 
     def queryset(self, request, queryset):
         if self.value():
@@ -170,15 +178,57 @@ class IndustryFilter(SimpleListFilter):
             return queryset
 
 
-# class OrganizationFilter(RelatedFieldListFilter):
+class OrganizationFilter(SimpleListFilter):
+    title = 'Organization'
+    parameter_name = 'organization__name'
+
+    def lookups(self, request, model_admin):
+        private_sources = all_sources.filter(privacy_level='private_individual')
+        private_organizations = [organization.name for source in private_sources for organization in source.organization.all()]
+
+        non_private_sources = all_sources.exclude(privacy_level='private_individual')
+        non_private_orgnizations = [organization.name for source in non_private_sources for organization in source.organization.all()]
+
+        options = get_displayable_list(private_organizations, non_private_orgnizations)
+        filters_list = [(option, option) for option in options]
+
+        return tuple(filters_list)
 
 
-# class ExpertiseFilter(RelatedFieldListFilter):
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(organization__name=self.value())
+        else:
+            return queryset
+
+
+class ExpertiseFilter(SimpleListFilter):
+    title = 'Expertise'
+    parameter_name = 'expertise__name'
+
+    def lookups(self, request, model_admin):
+        private_sources = all_sources.filter(privacy_level='private_individual')
+        private_expertise = [expertise.name for source in private_sources for expertise in source.expertise.all()]
+
+        non_private_sources = all_sources.exclude(privacy_level='private_individual')
+        non_private_expertise = [expertise.name for source in non_private_sources for expertise in source.industries.all()]
+
+        options = get_displayable_list(private_expertise, non_private_expertise)
+        filters_list = [(option, option) for option in options]
+
+        return tuple(filters_list)
+
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(expertise__name=self.value())
+        else:
+            return queryset
 
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'privacy_level']
-    list_filter = [IndustryFilter, 'timezone', 'city', 'state', 'privacy_level']  # ('organization__name', OrganizationFilter), ('expertise__name', ExpertiseFilter)
+    list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'timezone', 'city', 'state', 'privacy_level']
     # list_filter = ['industries__name', 'organization__name', 'expertise__name', 'timezone', 'city', 'state', 'privacy_level']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization']
