@@ -147,27 +147,25 @@ class IndustryFilter(SimpleListFilter):
     all_sources = Person.objects.all()
 
     private_sources = all_sources.filter(privacy_level='private_individual')
-    private_industries = [industry for source in private_sources for industry in source.industries.all()]
+    private_industries = [industry.name for source in private_sources for industry in source.industries.all()]
 
     non_private_sources = all_sources.exclude(privacy_level='private_individual')
-    non_private_industries = [industry for source in non_private_sources for industry in source.industries.all()]
+    non_private_industries = [industry.name for source in non_private_sources for industry in source.industries.all()]
 
-    overlap_list = list(set(private_industries) & set(non_private_industries))
+    overlap_set = set(private_industries) & set(non_private_industries)
 
-    displayable_industries_list = non_private_industries + overlap_list
+    set(non_private_industries).update(overlap_set)
 
+    displayable_industries_list = list(set(non_private_industries))
 
     def lookups(self, request, model_admin):
         filters_list = [(industry, industry) for industry in self.displayable_industries_list]
 
-        # return tuple(filters_list)
-        return (('Software', 'Software'), ('Data', 'Data'))
+        return tuple(filters_list)
 
     def queryset(self, request, queryset):
-        if self.value == 'Software':
-            return queryset.filter(industries__name='Software')
-        elif self.value == 'Data':
-            return queryset.filter(industries__name='Data')
+        if self.value():
+            return queryset.filter(industries__name=self.value())
         else:
             return queryset
 
