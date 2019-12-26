@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.filters import RelatedFieldListFilter, SimpleListFilter
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import format_html
@@ -139,9 +140,48 @@ class OrganizationAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
+class IndustryFilter(SimpleListFilter):
+    title = 'Industry name'
+    parameter_name = 'industries__name'
+
+    all_sources = Person.objects.all()
+
+    private_sources = all_sources.filter(privacy_level='private_individual')
+    private_industries = [industry for source in private_sources for industry in source.industries.all()]
+
+    non_private_sources = all_sources.exclude(privacy_level='private_individual')
+    non_private_industries = [industry for source in non_private_sources for industry in source.industries.all()]
+
+    overlap_list = list(set(private_industries) & set(non_private_industries))
+
+    displayable_industries_list = non_private_industries + overlap_list
+
+
+    def lookups(self, request, model_admin):
+        filters_list = [(industry, industry) for industry in self.displayable_industries_list]
+
+        # return tuple(filters_list)
+        return (('Software', 'Software'), ('Data', 'Data'))
+
+    def queryset(self, request, queryset):
+        if self.value == 'Software':
+            return queryset.filter(industries__name='Software')
+        elif self.value == 'Data':
+            return queryset.filter(industries__name='Data')
+        else:
+            return queryset
+
+
+# class OrganizationFilter(RelatedFieldListFilter):
+
+
+# class ExpertiseFilter(RelatedFieldListFilter):
+
+
 class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'privacy_level']
-    list_filter = ['organization__name', 'expertise__name', 'timezone', 'city', 'state', 'privacy_level']
+    list_filter = [IndustryFilter, 'timezone', 'city', 'state', 'privacy_level']  # ('organization__name', OrganizationFilter), ('expertise__name', ExpertiseFilter)
+    # list_filter = ['industries__name', 'organization__name', 'expertise__name', 'timezone', 'city', 'state', 'privacy_level']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
