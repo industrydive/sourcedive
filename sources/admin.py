@@ -13,10 +13,6 @@ from sources.models import (
 )
 
 
-# for SimpleListFilter classes
-all_sources = Person.objects.all()
-
-
 class ExpertiseAdmin(admin.ModelAdmin):
     fields = ['name']
     list_display = ['name']
@@ -154,15 +150,39 @@ def get_displayable_list(private_items, non_private_items):
     return displayable_list
 
 
+# for SimpleListFilter classes
+all_sources = Person.objects.all()
+private_sources = all_sources.filter(privacy_level='private_individual')
+non_private_sources = all_sources.exclude(privacy_level='private_individual')
+
+
+class ExpertiseFilter(SimpleListFilter):
+    title = 'Expertise'
+    parameter_name = 'expertise__name'
+
+    def lookups(self, request, model_admin):
+        private_expertise = [expertise.name for source in private_sources for expertise in source.expertise.all()]
+        non_private_expertise = [expertise.name for source in non_private_sources for expertise in source.expertise.all()]
+
+        options = get_displayable_list(private_expertise, non_private_expertise)
+        filters_list = [(option, option) for option in options]
+
+        return tuple(filters_list)
+
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(expertise__name=self.value())
+        else:
+            return queryset
+
+
 class IndustryFilter(SimpleListFilter):
     title = 'Industry'
     parameter_name = 'industries__name'
 
     def lookups(self, request, model_admin):
-        private_sources = all_sources.filter(privacy_level='private_individual')
         private_industries = [industry.name for source in private_sources for industry in source.industries.all()]
-
-        non_private_sources = all_sources.exclude(privacy_level='private_individual')
         non_private_industries = [industry.name for source in non_private_sources for industry in source.industries.all()]
 
         options = get_displayable_list(private_industries, non_private_industries)
@@ -183,45 +203,19 @@ class OrganizationFilter(SimpleListFilter):
     parameter_name = 'organization__name'
 
     def lookups(self, request, model_admin):
-        private_sources = all_sources.filter(privacy_level='private_individual')
         private_organizations = [organization.name for source in private_sources for organization in source.organization.all()]
+        non_private_organizations = [organization.name for source in non_private_sources for organization in source.organization.all()]
 
-        non_private_sources = all_sources.exclude(privacy_level='private_individual')
-        non_private_orgnizations = [organization.name for source in non_private_sources for organization in source.organization.all()]
-
-        options = get_displayable_list(private_organizations, non_private_orgnizations)
+        options = get_displayable_list(private_organizations, non_private_organizations)
         filters_list = [(option, option) for option in options]
-
+        print('organization filters')
+        print(filters_list)
         return tuple(filters_list)
 
 
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(organization__name=self.value())
-        else:
-            return queryset
-
-
-class ExpertiseFilter(SimpleListFilter):
-    title = 'Expertise'
-    parameter_name = 'expertise__name'
-
-    def lookups(self, request, model_admin):
-        private_sources = all_sources.filter(privacy_level='private_individual')
-        private_expertise = [expertise.name for source in private_sources for expertise in source.expertise.all()]
-
-        non_private_sources = all_sources.exclude(privacy_level='private_individual')
-        non_private_expertise = [expertise.name for source in non_private_sources for expertise in source.industries.all()]
-
-        options = get_displayable_list(private_expertise, non_private_expertise)
-        filters_list = [(option, option) for option in options]
-
-        return tuple(filters_list)
-
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(expertise__name=self.value())
         else:
             return queryset
 
