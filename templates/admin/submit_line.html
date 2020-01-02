@@ -2,12 +2,12 @@
 
 {% block submit-row %}
 
-  {% if not '?edit=true' in request.get_full_path %}
-    <input type="submit" value="Edit" name="_edit">
-  {% elif '?edit=true' in request.get_full_path %}
-    <input type="submit" value="View" name="_view">
-  {% endif %}
+{{ block.super }}
 
-  {{ block.super }}
+  {% if not '?edit=true' in request.get_full_path %}
+    <input type="submit" value="Edit" name="_edit" class="default">
+  {% elif '?edit=true' in request.get_full_path %}
+    <input type="submit" value="View" name="_view" class="default">
+  {% endif %}
 
 {% endblock %}
