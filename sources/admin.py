@@ -209,8 +209,7 @@ class OrganizationFilter(SimpleListFilter):
 
         options = get_displayable_list(private_organizations, non_private_organizations)
         filters_list = [(option, option) for option in options]
-        print('organization filters')
-        print(filters_list)
+
         return tuple(filters_list)
 
 
