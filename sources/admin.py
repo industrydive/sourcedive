@@ -224,7 +224,6 @@ class OrganizationFilter(SimpleListFilter):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'timezone', 'city', 'state', 'privacy_level']
-    # list_filter = ['industries__name', 'organization__name', 'expertise__name', 'timezone', 'city', 'state', 'privacy_level']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization']
     readonly_fields = ['entry_method', 'entry_type', 'created_by']
