@@ -126,7 +126,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-# SOCIAL_AUTH_LOGIN_REDIRECT_URL='/admin/sources/source'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL='/admin/sources/person/'
 
 ## explanation and other options: https://python-social-auth-docs.readthedocs.io/en/latest/pipeline.html
 
@@ -141,7 +141,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
-    'sources.pipeline.add_permissions_to_new_whitelisted_users',
 )
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale/')]

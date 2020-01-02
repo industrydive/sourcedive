@@ -7,3 +7,4 @@ Pipfile*
 settings_private.py
 static/
 latest_export*
+*.json
