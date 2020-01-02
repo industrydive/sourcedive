@@ -139,7 +139,14 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
 
+    
+# for SimpleListFilter classes
+all_sources = Person.objects.all()
+private_sources = all_sources.filter(privacy_level='private_individual')
+non_private_sources = all_sources.exclude(privacy_level='private_individual')
 
+
+# for SimpleListFilter classes
 def get_displayable_list(private_items, non_private_items):
     overlap_set = set(private_items) & set(non_private_items)
 
@@ -148,12 +155,6 @@ def get_displayable_list(private_items, non_private_items):
     displayable_list = list(set(non_private_items))
 
     return displayable_list
-
-
-# for SimpleListFilter classes
-all_sources = Person.objects.all()
-private_sources = all_sources.filter(privacy_level='private_individual')
-non_private_sources = all_sources.exclude(privacy_level='private_individual')
 
 
 class ExpertiseFilter(SimpleListFilter):
