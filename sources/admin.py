@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.admin.filters import RelatedFieldListFilter, SimpleListFilter
+from django.contrib.admin.filters import SimpleListFilter
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import format_html
