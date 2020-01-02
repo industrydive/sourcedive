@@ -1,0 +1,13 @@
+{% extends 'admin/submit_line.html' %}
+
+{% block submit-row %}
+
+{{ block.super }}
+
+  {% if not '?edit=true' in request.get_full_path %}
+    <input type="submit" value="Edit" name="_edit" class="default">
+  {% elif '?edit=true' in request.get_full_path %}
+    <input type="submit" value="View" name="_view" class="default">
+  {% endif %}
+
+{% endblock %}

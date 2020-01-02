@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.admin.filters import SimpleListFilter
+from django.contrib.admin.utils import flatten_fieldsets
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -376,6 +378,24 @@ class PersonAdmin(admin.ModelAdmin):
         )
 
 
+    def get_readonly_fields(self, request, obj=None):
+        if self.fieldsets and 'edit' not in request.GET:
+            return flatten_fieldsets(self.fieldsets)
+        else:
+            return self.readonly_fields
+
+
+    def response_change(self, request, obj):
+        url = reverse('admin:sources_person_change', args=(obj.id,))
+
+        if '_edit' in request.POST:
+            return HttpResponseRedirect(url + '?edit=true')
+        elif '_view' in request.POST:
+            return HttpResponseRedirect(url)
+
+        return super(PersonAdmin, self).response_change(request, obj)
+
+
     def save_model(self, request, obj, form, change):
         ## associate the Person being created with the User who created them
         current_user = request.user
@@ -393,3 +413,5 @@ admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(Industry, IndustryAdmin)
 admin.site.register(Interaction, InteractionAdmin)
 admin.site.register(Person, PersonAdmin)
+
+admin.site.site_header = 'Source Dive'
