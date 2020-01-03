@@ -259,109 +259,78 @@ class PersonAdmin(admin.ModelAdmin):
         notes field for them
         """
         obj = Person.objects.get(id=object_id)
+
+        # this will be modified no matter what
+        contact_dict = {
+            'fields': [
+                'linkedin',
+                'twitter',
+                'skype',
+
+            ]
+        }
+
+        # this is only modified if data is hidden
+        readonly_fields = [
+            'created_by',
+            'entry_method',
+            'entry_type',
+        ]
+
         if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            self.fieldsets = (
-                ('Privacy', {
-                    'fields': ('privacy_level',)
-                }),
-                ('General info', {
-                    'fields': (
-                        'prefix',
-                        'pronouns',
-                        'name',
-                        'title',
-                        'industries',
-                        'organization',
-                        'website',
-                        'type_of_expert',
-                        'expertise',
-                    ),
-                }),
-                ('Contact info', {
-                    'fields': (
-                        'email_address_semiprivate_display',
-                        'phone_number_primary_semiprivate_display',
-                        'phone_number_secondary_semiprivate_display',
-                        'linkedin',
-                        'twitter',
-                        'skype',
-                    ),
-                }),
-                ('Location info', {
-                    'fields': (
-                        'timezone',
-                        'city',
-                        'state',
-                        'country',
-                    ),
-                }),
-                ('Advanced info', {
-                    'classes': ('collapse',),
-                    'fields': (
-                        'entry_method',
-                        'entry_type',
-                        'created_by',
-                    ),
-                }),
-            )
-            self.readonly_fields = [
-                'created_by',
-                'entry_method',
-                'entry_type',
+            prepend_contact_list = [
                 'email_address_semiprivate_display',
                 'phone_number_primary_semiprivate_display',
                 'phone_number_secondary_semiprivate_display',
             ]
+
+            contact_dict['fields'] = prepend_contact_list + contact_dict['fields']
+
+            readonly_fields.extend(prepend_contact_list)
+
         else:
-            self.fieldsets = (
-                ('Privacy', {
-                    'fields': ('privacy_level',)
-                }),
-                ('General info', {
-                    'fields': (
-                        'prefix',
-                        'pronouns',
-                        'name',
-                        'title',
-                        'industries',
-                        'organization',
-                        'website',
-                        'type_of_expert',
-                        'expertise',
-                    ),
-                }),
-                ('Contact info', {
-                    'fields': (
-                        'email_address',
-                        'phone_number_primary',
-                        'phone_number_secondary',
-                        'linkedin',
-                        'twitter',
-                        'skype',
-                    ),
-                }),
-                ('Location info', {
-                    'fields': (
-                        'timezone',
-                        'city',
-                        'state',
-                        'country',
-                    ),
-                }),
-                ('Advanced info', {
-                    'classes': ('collapse',),
-                    'fields': (
-                        'entry_method',
-                        'entry_type',
-                        'created_by',
-                    ),
-                }),
-            )
-            self.readonly_fields = [
-                'created_by',
-                'entry_method',
-                'entry_type',
+            prepend_contact_list = [
+                'email_address',
+                'phone_number_primary',
+                'phone_number_secondary',
             ]
+            contact_dict['fields'] = prepend_contact_list + contact_dict['fields']
+
+        self.fieldsets = (
+            ('Privacy', {'fields': ['privacy_level']}),
+            ('General info', {
+                'fields': [
+                    'prefix',
+                    'pronouns',
+                    'name',
+                    'title',
+                    'industries',
+                    'organization',
+                    'website',
+                    'type_of_expert',
+                    'expertise',
+                ],
+            }),
+            ('Contact info', contact_dict),
+            ('Location info', {
+                'fields': [
+                    'timezone',
+                    'city',
+                    'state',
+                    'country',
+                ]
+            }),
+            ('Advanced info', {
+                'classes': ('collapse',),
+                'fields': [
+                    'entry_method',
+                    'entry_type',
+                    'created_by',
+                ],
+            }),
+        )
+        self.readonly_fields = readonly_fields
+
         return self.changeform_view(request, object_id, form_url, extra_context)
 
 
