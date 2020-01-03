@@ -301,6 +301,8 @@ class PersonAdmin(admin.ModelAdmin):
                         'entry_method',
                         'entry_type',
                         'created_by',
+                        # 'last_updated_by',
+                        'updated',
                     ),
                 }),
             )
@@ -354,6 +356,8 @@ class PersonAdmin(admin.ModelAdmin):
                         'entry_method',
                         'entry_type',
                         'created_by',
+                        # 'last_updated_by',
+                        'updated',
                     ),
                 }),
             )
