@@ -8,6 +8,8 @@ from .settings_private import *
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if TEST_ENV:
@@ -112,6 +114,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+# Additional locations of static files
+STATICFILES_DIRS = (
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(PROJECT_ROOT, 'media'),
+)
 
 # Python social auth 
 AUTHENTICATION_BACKENDS = (
