@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     'sources.apps.SourcesConfig',
     # 'social.apps.django_app.default',
     'social_django',
-    # 'debug_toolbar',
 ]
 
 MIDDLEWARE = [
