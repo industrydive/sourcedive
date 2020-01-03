@@ -1,6 +1,4 @@
-from django.conf import settings
 from django.conf.urls import include, url
-# from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
@@ -14,9 +12,3 @@ urlpatterns = [
     url('', include(('social_django.urls', 'social_django'), namespace='social')),
     url('', include(('django.contrib.auth.urls', 'django'), namespace='auth')),
 ]
-
-# if settings.DEBUG:
-#     import debug_toolbar
-#     urlpatterns = [
-#         url(r'^__debug__/', include(debug_toolbar.urls)),
-#     ] + urlpatterns
