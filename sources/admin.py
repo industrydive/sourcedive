@@ -278,6 +278,7 @@ class PersonAdmin(admin.ModelAdmin):
         ]
 
         if obj.privacy_level == 'searchable' and obj.created_by != request.user:
+            # we prepend because order matters in the list of fields
             prepend_contact_list = [
                 'email_address_semiprivate_display',
                 'phone_number_primary_semiprivate_display',
