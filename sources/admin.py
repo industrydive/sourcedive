@@ -313,6 +313,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'email_address_semiprivate_display',
                 'phone_number_primary_semiprivate_display',
                 'phone_number_secondary_semiprivate_display',
+                'updated',
             ]
         else:
             self.fieldsets = (
@@ -365,6 +366,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'created_by',
                 'entry_method',
                 'entry_type',
+                'updated',
             ]
         return self.changeform_view(request, object_id, form_url, extra_context)
 
