@@ -11,6 +11,14 @@ $(function() {
     formModified = true;
   });
 
+  // See if user changed any form inputs after clicking "add another" button
+  // TODO: make DRY
+  $('.interactions-new a').click(function() {
+    $(':input:not(:button,:submit), textarea').change(function() {
+      formModified = true;
+    });
+  });
+
   // Don't warn user they have unsaved changes if they click save
   $('input:submit').click(function() {
     formModified = false;
