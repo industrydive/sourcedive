@@ -4,10 +4,15 @@
 
 {{ block.super }}
 
-  {% if not '?edit=true' in request.get_full_path %}
-    <input type="submit" value="Edit" name="_edit" class="default">
-  {% elif '?edit=true' in request.get_full_path %}
-    <input type="submit" value="View" name="_view" class="default">
+{% with request.get_full_path as url_path %}
+  {# Edit/View buttons should only appear on Person model "change" page #}
+  {% if 'person' in url_path and 'change' in url_path %}
+    {% if not '?edit=true' in request.get_full_path %}
+      <input type="submit" value="Edit" name="_edit" class="default">
+    {% elif '?edit=true' in request.get_full_path %}
+      <input type="submit" value="View" name="_view" class="default">
+    {% endif %}
   {% endif %}
+{% endwith %}
 
 {% endblock %}
