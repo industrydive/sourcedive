@@ -97,7 +97,10 @@ class Person(BasicInfo, PrivacyMixin):
         return super(Person, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        else:
+            return ''
 
     class Meta:
         ordering = ['-updated']
