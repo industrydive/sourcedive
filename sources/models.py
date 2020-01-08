@@ -16,6 +16,7 @@ class BasicInfo(models.Model):
     """ Abstract base class used across models """
     created = models.DateTimeField(null=True, blank=True, auto_now_add=True)
     updated = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Updated in system', help_text='This is when the item was updated in the system.')
+    # last_updated_by = models.ForeignKey(User, null=True, blank=True, related_name='last_updated_by', on_delete=models.SET_NULL)
 
     class Meta:
         abstract = True
@@ -86,6 +87,7 @@ class Person(BasicInfo, PrivacyMixin):
     type_of_expert = models.CharField(max_length=255, null=True, blank=True, help_text='If applicable (e.g. economist, engineer, researcher, etc.)', verbose_name='Type of expert')
     website = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='Website')
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='created_by_person', on_delete=models.SET_NULL)
+    # TODO: remove this bc it's a vestige of other project
     related_user = models.ForeignKey(User, null=True, blank=True, related_name='related_user_person', on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
