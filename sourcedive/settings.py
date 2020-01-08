@@ -5,11 +5,11 @@ Django settings for sourcedive project.
 import os
 from .settings_private import *
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if TEST_ENV:
