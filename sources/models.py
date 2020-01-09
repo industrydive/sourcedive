@@ -60,6 +60,16 @@ class PrivacyMixin(models.Model):
 
 class Person(BasicInfo, PrivacyMixin):
     """ Representation of a Sources in the system """
+    def timezone_choices():
+        import pytz
+        pytz_all = pytz.all_timezones
+        tz_list = []
+        for tz in pytz_all:
+            item = tz, tz
+            tz_list.append(item)
+        timezones = tuple(tz_list)
+        return timezones
+
     city = models.CharField(max_length=255, null=True, blank=True, verbose_name='City')
     country = models.CharField(max_length=255, choices=COUNTRY_CHOICES, null=True, blank=True, verbose_name='Country')
     email_address = models.EmailField(max_length=254, null=True, blank=False, verbose_name=('Email address'))
@@ -82,7 +92,7 @@ class Person(BasicInfo, PrivacyMixin):
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name='Skype username')
     state = models.CharField(max_length=255, null=True, blank=True, verbose_name='State/province')
     title = models.CharField(max_length=255, null=True, blank=True, verbose_name='Job title')
-    timezone = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(-12),MaxValueValidator(12)], verbose_name='Time zone offset from GMT', help_text='-4, 10, etc.')  # look up based on city/state/county combo? use a list or third-party library?
+    timezone = models.CharField(max_length=255, choices=timezone_choices(), blank=True, null=True, verbose_name='Time zone')
     twitter = models.CharField(null=True, blank=True, max_length=140, help_text='Please do not include the @ symbol.', verbose_name='Twitter')
     type_of_expert = models.CharField(max_length=255, null=True, blank=True, help_text='If applicable (e.g. economist, engineer, researcher, etc.)', verbose_name='Type of expert')
     website = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='Website')
