@@ -32,8 +32,11 @@
   $(window).on("load", () => {
     setFormModifiedEvent();
 
-    $('.selector-chosen').bind("DOMSubtreeModified", () => {
-      formModified = true;
+    $('.selector-chosen').bind("DOMSubtreeModified", function () {
+      // This if is main to catch the scenario where the user just selects something with the 'from' list, but doesn't add the item.
+      if ($(this).children('option').length) {
+        formModified = true;
+      }
     });
 
     $('.add-row a').click(() => {
