@@ -10,9 +10,8 @@
     const originalSet = descriptor.set;
 
     // define our own setter
-    descriptor.set = function (val) {
-      // Ignore the hidden elements since those shouldn't be changed by the user
-      if ($(this).attr('type') !== 'hidden') {
+    descriptor.set = (val) => {
+      if ($(this).attr('name').includes('date_time')) {
         formModified = true;
       }
       originalSet.apply(this, arguments);
@@ -22,7 +21,7 @@
   }
 
   function setFormModifiedEvent() {
-    $(':input:not(:button,:submit), textarea').on('input', function () {
+    $(':input:not(:button,:submit), textarea').on('input', () => {
       formModified = true;
     });
   }
@@ -32,25 +31,24 @@
   setFormModifiedEvent();
 
   // The selector-chosen fields are inline and aren't available even if the document is ready, so need to wait until the load event
-  $(window).on("load", function () {
-    $('.selector-chosen').bind("DOMSubtreeModified", function () {
+  $(window).on("load", () => {
+    $('.selector-chosen').bind("DOMSubtreeModified", () => {
       formModified = true;
     });
 
     $('.add-row a').click(() => {
       setFormModifiedEvent();
     });
-  });
 
-
-  // Don't warn user they have unsaved changes if they click save
-  $('input:submit').click(() => {
-    formModified = false;
-    saveClicked = true;
+    // Don't warn user they have unsaved changes if they click save
+    $('input:submit').click(() => {
+      formModified = false;
+      saveClicked = true;
+    });
   });
 
   // Checking if the user has modified the form upon closing window
-  window.onbeforeunload = function () {
+  window.onbeforeunload = () => {
     let warnMessage = null;
     if (!saveClicked) {
       if (formModified) {
