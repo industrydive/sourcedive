@@ -9,8 +9,8 @@
     const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
     const originalSet = descriptor.set;
 
-    // define our own setter
-    descriptor.set = (val) => {
+    // define our own setter. This needs to be a regular function so that `this` is the input field rather than the window
+    descriptor.set = function() {
       if ($(this).attr('name').includes('date_time')) {
         formModified = true;
       }
@@ -20,18 +20,18 @@
     Object.defineProperty(HTMLInputElement.prototype, "value", descriptor);
   }
 
+  customInputSetter();
+
   function setFormModifiedEvent() {
     $(':input:not(:button,:submit), textarea').on('input', () => {
       formModified = true;
     });
   }
 
-  // Initial Setup
-  customInputSetter();
-  setFormModifiedEvent();
-
   // The selector-chosen fields are inline and aren't available even if the document is ready, so need to wait until the load event
   $(window).on("load", () => {
+    setFormModifiedEvent();
+
     $('.selector-chosen').bind("DOMSubtreeModified", () => {
       formModified = true;
     });
@@ -41,9 +41,11 @@
     });
 
     // Don't warn user they have unsaved changes if they click save
-    $('input:submit').click(() => {
-      formModified = false;
-      saveClicked = true;
+    $('input:submit').click((evt) => {
+      if (evt.target.value.toLowerCase().includes('save')) {
+        formModified = false;
+        saveClicked = true;
+      }
     });
   });
 
