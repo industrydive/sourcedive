@@ -227,7 +227,7 @@ class PersonAdmin(admin.ModelAdmin):
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'timezone', 'city', 'state', 'privacy_level']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization']
-    readonly_fields = ['entry_method', 'entry_type', 'created_by']
+    readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated']
     # save_as = True
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
@@ -252,6 +252,76 @@ class PersonAdmin(admin.ModelAdmin):
     phone_number_secondary_semiprivate_display.short_description = 'Phone number secondary'
 
 
+    def _set_fieldsets(self, hide_contact_data=False):
+        default_contact_fields = [
+            'linkedin',
+            'twitter',
+            'skype',
+        ]
+
+        prepend_contact_fields = [
+            'email_address',
+            'phone_number_primary',
+            'phone_number_secondary',
+        ]
+        # hide_contact_data=1
+
+        if hide_contact_data:
+            prepend_contact_fields = [name + '_semiprivate_display' for name in prepend_contact_fields]
+
+        contact_dict = {'fields': prepend_contact_fields + default_contact_fields}
+
+        self.fieldsets = (
+            ('Privacy', {
+                'fields': ('privacy_level',)
+            }),
+            ('General info', {
+                'fields': (
+                    'prefix',
+                    'pronouns',
+                    'name',
+                    'title',
+                    'industries',
+                    'organization',
+                    'website',
+                    'type_of_expert',
+                    'expertise',
+                ),
+            }),
+            ('Contact info', contact_dict),
+            ('Location info', {
+                'fields': (
+                    'timezone',
+                    'city',
+                    'state',
+                    'country',
+                ),
+            }),
+            ('Advanced info', {
+                'classes': ('collapse',),
+                'fields': (
+                    'entry_method',
+                    'entry_type',
+                    'created_by',
+                    # 'last_updated_by',
+                    'updated',
+                ),
+            }),
+        )
+        self.readonly_fields = [
+            'created_by',
+            'entry_method',
+            'entry_type',
+            'email_address_semiprivate_display',   #diff
+            'phone_number_primary_semiprivate_display', #diff
+            'phone_number_secondary_semiprivate_display', #diff
+            'updated',
+        ]
+
+    # def add_view(self, *args, **kwargs):
+    #     self._set_fieldsets(hide_contact_data=False)
+    #     super(PersonAdmin, self).add_view(*args, **kwargs)
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
         If the privacy level is semi-private/searchable and the logged
@@ -260,52 +330,8 @@ class PersonAdmin(admin.ModelAdmin):
         """
         obj = Person.objects.get(id=object_id)
         if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            self.fieldsets = (
-                ('Privacy', {
-                    'fields': ('privacy_level',)
-                }),
-                ('General info', {
-                    'fields': (
-                        'prefix',
-                        'pronouns',
-                        'name',
-                        'title',
-                        'industries',
-                        'organization',
-                        'website',
-                        'type_of_expert',
-                        'expertise',
-                    ),
-                }),
-                ('Contact info', {
-                    'fields': (
-                        'email_address_semiprivate_display',
-                        'phone_number_primary_semiprivate_display',
-                        'phone_number_secondary_semiprivate_display',
-                        'linkedin',
-                        'twitter',
-                        'skype',
-                    ),
-                }),
-                ('Location info', {
-                    'fields': (
-                        'timezone',
-                        'city',
-                        'state',
-                        'country',
-                    ),
-                }),
-                ('Advanced info', {
-                    'classes': ('collapse',),
-                    'fields': (
-                        'entry_method',
-                        'entry_type',
-                        'created_by',
-                        # 'last_updated_by',
-                        'updated',
-                    ),
-                }),
-            )
+            self._set_fieldsets(hide_contact_data=True)
+
             self.readonly_fields = [
                 'created_by',
                 'entry_method',
@@ -316,52 +342,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'updated',
             ]
         else:
-            self.fieldsets = (
-                ('Privacy', {
-                    'fields': ('privacy_level',)
-                }),
-                ('General info', {
-                    'fields': (
-                        'prefix',
-                        'pronouns',
-                        'name',
-                        'title',
-                        'industries',
-                        'organization',
-                        'website',
-                        'type_of_expert',
-                        'expertise',
-                    ),
-                }),
-                ('Contact info', {
-                    'fields': (
-                        'email_address',
-                        'phone_number_primary',
-                        'phone_number_secondary',
-                        'linkedin',
-                        'twitter',
-                        'skype',
-                    ),
-                }),
-                ('Location info', {
-                    'fields': (
-                        'timezone',
-                        'city',
-                        'state',
-                        'country',
-                    ),
-                }),
-                ('Advanced info', {
-                    'classes': ('collapse',),
-                    'fields': (
-                        'entry_method',
-                        'entry_type',
-                        'created_by',
-                        # 'last_updated_by',
-                        'updated',
-                    ),
-                }),
-            )
+            self._set_fieldsets(hide_contact_data=False)
             self.readonly_fields = [
                 'created_by',
                 'entry_method',
