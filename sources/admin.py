@@ -278,7 +278,6 @@ class PersonAdmin(admin.ModelAdmin):
             'phone_number_primary',
             'phone_number_secondary',
         ]
-        # hide_contact_data=1
 
         if hide_contact_data:
             # set the semiprivate fields to the display value
