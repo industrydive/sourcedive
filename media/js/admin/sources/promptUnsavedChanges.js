@@ -17,7 +17,7 @@
       originalSet.apply(this, arguments);
     };
 
-    Object.defineProperty(HTMLInputElement.prototype, "value", descriptor);
+    Object.defineProperty(HTMLInputElement.prototype, 'value', descriptor);
   }
 
   customInputSetter();
@@ -29,10 +29,10 @@
   }
 
   // The selector-chosen fields are inline and aren't available even if the document is ready, so need to wait until the load event
-  $(window).on("load", () => {
+  $(window).on('load', () => {
     setFormModifiedEvent();
 
-    $('.selector-chosen').bind("DOMSubtreeModified", function () {
+    $('.selector-chosen').bind('DOMSubtreeModified', function () {
       // This if is main to catch the scenario where the user just selects something with the 'from' list, but doesn't add the item.
       if ($(this).children('option').length) {
         formModified = true;
