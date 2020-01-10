@@ -308,19 +308,19 @@ class PersonAdmin(admin.ModelAdmin):
                 ),
             }),
         )
-        self.readonly_fields = [
-            'created_by',
-            'entry_method',
-            'entry_type',
-            'email_address_semiprivate_display',   #diff
-            'phone_number_primary_semiprivate_display', #diff
-            'phone_number_secondary_semiprivate_display', #diff
-            'updated',
-        ]
 
     # def add_view(self, *args, **kwargs):
     #     self._set_fieldsets(hide_contact_data=False)
     #     super(PersonAdmin, self).add_view(*args, **kwargs)
+        # self.readonly_fields = [
+        #     'created_by',
+        #     'entry_method',
+        #     'entry_type',
+        #     'email_address_semiprivate_display',   #diff
+        #     'phone_number_primary_semiprivate_display', #diff
+        #     'phone_number_secondary_semiprivate_display', #diff
+        #     'updated',
+        # ]
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
@@ -366,10 +366,10 @@ class PersonAdmin(admin.ModelAdmin):
 
 
     def get_readonly_fields(self, request, obj=None):
-        if self.fieldsets and 'edit' not in request.GET:
-            return flatten_fieldsets(self.fieldsets)
-        elif 'add' in request.GET:
+        if '/add/' in request.path:
             return self.readonly_fields
+        elif 'edit' not in request.GET:
+            return flatten_fieldsets(self.fieldsets)
         else:
             return self.readonly_fields
 
