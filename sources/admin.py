@@ -308,10 +308,6 @@ class PersonAdmin(admin.ModelAdmin):
                 ),
             }),
         )
-
-    # def add_view(self, *args, **kwargs):
-    #     self._set_fieldsets(hide_contact_data=False)
-    #     super(PersonAdmin, self).add_view(*args, **kwargs)
         # self.readonly_fields = [
         #     'created_by',
         #     'entry_method',
@@ -321,6 +317,10 @@ class PersonAdmin(admin.ModelAdmin):
         #     'phone_number_secondary_semiprivate_display', #diff
         #     'updated',
         # ]
+
+    def add_view(self, *args, **kwargs):
+        self._set_fieldsets(hide_contact_data=False)
+        return super(PersonAdmin, self).add_view(*args, **kwargs)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
