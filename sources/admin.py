@@ -285,7 +285,8 @@ class PersonAdmin(admin.ModelAdmin):
             prepend_contact_fields = [name + '_semiprivate_display' for name in prepend_contact_fields]
 
             # and add the display value to the readonly fields as well
-            self.readonly_fields = self.readonly_fields + prepend_contact_fields
+            # also, we don't want the user to be able to change the privacy level if they can't see the contact details
+            self.readonly_fields = self.readonly_fields + prepend_contact_fields + ['privacy_level']
 
         current_contact_fields = prepend_contact_fields + default_contact_fields
 
