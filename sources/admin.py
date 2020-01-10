@@ -267,7 +267,11 @@ class PersonAdmin(admin.ModelAdmin):
         # hide_contact_data=1
 
         if hide_contact_data:
+            # set the semiprivate fields to the display value
             prepend_contact_fields = [name + '_semiprivate_display' for name in prepend_contact_fields]
+
+            # and add the display value to the readonly fields as well
+            self.readonly_fields = self.readonly_fields + prepend_contact_fields
 
         contact_dict = {'fields': prepend_contact_fields + default_contact_fields}
 
@@ -308,15 +312,6 @@ class PersonAdmin(admin.ModelAdmin):
                 ),
             }),
         )
-        # self.readonly_fields = [
-        #     'created_by',
-        #     'entry_method',
-        #     'entry_type',
-        #     'email_address_semiprivate_display',   #diff
-        #     'phone_number_primary_semiprivate_display', #diff
-        #     'phone_number_secondary_semiprivate_display', #diff
-        #     'updated',
-        # ]
 
     def add_view(self, *args, **kwargs):
         self._set_fieldsets(hide_contact_data=False)
@@ -329,26 +324,12 @@ class PersonAdmin(admin.ModelAdmin):
         notes field for them
         """
         obj = Person.objects.get(id=object_id)
+
         if obj.privacy_level == 'searchable' and obj.created_by != request.user:
             self._set_fieldsets(hide_contact_data=True)
-
-            self.readonly_fields = [
-                'created_by',
-                'entry_method',
-                'entry_type',
-                'email_address_semiprivate_display',
-                'phone_number_primary_semiprivate_display',
-                'phone_number_secondary_semiprivate_display',
-                'updated',
-            ]
         else:
             self._set_fieldsets(hide_contact_data=False)
-            self.readonly_fields = [
-                'created_by',
-                'entry_method',
-                'entry_type',
-                'updated',
-            ]
+
         return self.changeform_view(request, object_id, form_url, extra_context)
 
 
