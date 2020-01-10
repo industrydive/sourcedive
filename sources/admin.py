@@ -387,6 +387,8 @@ class PersonAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if self.fieldsets and 'edit' not in request.GET:
             return flatten_fieldsets(self.fieldsets)
+        elif 'add' in request.GET:
+            return self.readonly_fields
         else:
             return self.readonly_fields
 
