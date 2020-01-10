@@ -253,6 +253,20 @@ class PersonAdmin(admin.ModelAdmin):
 
 
     def _set_fieldsets(self, hide_contact_data=False):
+        """
+        Sets `self.fieldsets`. This needs to be explicitly called every view that should have fieldsets,
+        because the contact info fieldset will have different fields depending on if we want to show or
+        hide the private contact data.
+
+        This could be considerably more abstract and thus complicated, it could change fieldsets
+        besides the contact info. I decided to shy away from that right now -- we can always come
+        back and change it, by eg passing in a dict with keys of the fieldsets and values of the
+        additions, possibly in both pre- and append flavors.
+
+        Arguments:
+            hide_contact_data - if True, replace the email & phone fields with the semiprivate display values, as well
+                as setting the readonly fields to include these fields.
+        """
         default_contact_fields = [
             'linkedin',
             'twitter',
@@ -273,7 +287,7 @@ class PersonAdmin(admin.ModelAdmin):
             # and add the display value to the readonly fields as well
             self.readonly_fields = self.readonly_fields + prepend_contact_fields
 
-        contact_dict = {'fields': prepend_contact_fields + default_contact_fields}
+        current_contact_fields = prepend_contact_fields + default_contact_fields
 
         self.fieldsets = (
             ('Privacy', {
@@ -292,7 +306,9 @@ class PersonAdmin(admin.ModelAdmin):
                     'expertise',
                 ),
             }),
-            ('Contact info', contact_dict),
+            ('Contact info', {
+                'fields': current_contact_fields
+            }),
             ('Location info', {
                 'fields': (
                     'timezone',
