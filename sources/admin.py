@@ -295,7 +295,7 @@ class PersonAdmin(admin.ModelAdmin):
             return self._return_fieldsets(hide_contact_data=False)
         elif obj.created_by == request.user:
             return self._return_fieldsets(hide_contact_data=False)
-        elif obj.privacy_level == 'private_individual'
+        elif obj.privacy_level == 'private_individual':
             return [(None, {'fields': []})]
         elif obj.privacy_level == 'searchable':
             return self._return_fieldsets(hide_contact_data=True)
@@ -313,6 +313,17 @@ class PersonAdmin(admin.ModelAdmin):
         # else:
         #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
 
+    def _determine_whether_to_hide_contact_data(self, request, obj):
+        if not obj:
+            return False
+        elif obj.created_by == request.user:
+            return False
+        # elif obj.privacy_level == 'private_individual':
+        #     return [(None, {'fields': []})]
+        elif obj.privacy_level == 'searchable':
+            return True
+        else:
+            return False
 
 
     def _return_fieldsets(self, hide_contact_data=False):
@@ -439,9 +450,15 @@ class PersonAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if not obj:
             return self.readonly_fields
-        elif '?edit=True' not in request.GET:
-            current_fieldsets = self._return_fieldsets()
-            return flatten_fieldsets(self.fieldsets)
+
+        hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
+
+        if '?edit=True' not in request.GET:
+            current_fieldsets = self._return_fieldsets(hide_contact_data=hide_contact_data)
+            return flatten_fieldsets(current_fieldsets)
+        elif hide_contact_data:
+            _, contact_fields_to_add = self._get_contact_field_names_tuple(hide_contact_data=hide_contact_data)
+            return self.readonly_fields + ['privacy_level'] + contact_fields_to_add
         else:
             return self.readonly_fields
 
