@@ -258,22 +258,18 @@ class PersonAdmin(admin.ModelAdmin):
         return format_html(display_text)
     phone_number_secondary_semiprivate_display.short_description = 'Phone number secondary'
 
+    # def get_readonly_fields(self, request, obj=None):
+    #     # if creating the obj, just use the default readonly fields
+    #     if not obj:
+    #         return self.readonly_fields
+    #
+    #     if '?edit=true' in request.path:
+    #         import pdb
 
-    def _set_fieldsets(self, hide_contact_data=False, privacy_readonly=False):
+    def _get_contact_field_names_tuple(self, hide_contact_data=False):
         """
-        Sets `self.fieldsets` and `self.readonly_fields`. This needs to be explicitly called every view that
-        should have fieldsets, because the contact info fieldset will have different fields depending on if
-        we want to show or hide the private contact data.
-
-        NOTE: This could be considerably more abstract and thus complicated, it could change fieldsets
-        besides the contact info. I decided to shy away from that right now -- we can always come
-        back and change it, by eg passing in a dict with keys of the fieldsets and values of the
-        additions, possibly in both pre- and append flavors.
-
-        Arguments:
-            hide_contact_data - if True, replace the email & phone fields with the semiprivate display values, as well
-                as setting the readonly fields to include these fields.
-            privacy_readonly - if True, the privacy field is set to readonly
+        Returns a tuple. The first element is a list of the contact field names
+        and the second is a list of contact field names that vary based on  hide_contact_data
         """
         default_contact_fields = [
             'linkedin',
@@ -291,16 +287,77 @@ class PersonAdmin(admin.ModelAdmin):
             # set the semiprivate fields to the display value
             prepend_contact_fields = [name + '_semiprivate_display' for name in prepend_contact_fields]
 
+        return (default_contact_fields, prepend_contact_fields)
+
+
+    def get_fieldsets(self, request, obj=None):
+        if not obj:
+            return self._return_fieldsets(hide_contact_data=False)
+        elif obj.created_by == request.user:
+            return self._return_fieldsets(hide_contact_data=False)
+        elif obj.privacy_level == 'private_individual'
+            return [(None, {'fields': []})]
+        elif obj.privacy_level == 'searchable':
+            return self._return_fieldsets(hide_contact_data=True)
+        else:
+            return self._return_fieldsets(hide_contact_data=False)
+
+        # super(PersonAdmin, self).get_fieldsets()
+        # import pdb; pdb.set_trace()
+        # if obj.created_by == request.user:
+        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
+        # elif obj.privacy_level == 'private_individual':
+        #     self.fieldsets = ()
+        # elif obj.privacy_level == 'searchable':
+        #     self._set_fieldsets(hide_contact_data=True, privacy_readonly=True)
+        # else:
+        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
+
+
+
+    def _return_fieldsets(self, hide_contact_data=False):
+        """
+        Sets `self.fieldsets` and `self.readonly_fields`. This needs to be explicitly called every view that
+        should have fieldsets, because the contact info fieldset will have different fields depending on if
+        we want to show or hide the private contact data.
+
+        NOTE: This could be considerably more abstract and thus complicated, it could change fieldsets
+        besides the contact info. I decided to shy away from that right now -- we can always come
+        back and change it, by eg passing in a dict with keys of the fieldsets and values of the
+        additions, possibly in both pre- and append flavors.
+
+        Arguments:
+            hide_contact_data - if True, replace the email & phone fields with the semiprivate display values, as well
+                as setting the readonly fields to include these fields.
+            privacy_readonly - if True, the privacy field is set to readonly
+        """
+        # default_contact_fields = [
+        #     'linkedin',
+        #     'twitter',
+        #     'skype',
+        # ]
+        #
+        # prepend_contact_fields = [
+        #     'email_address',
+        #     'phone_number_primary',
+        #     'phone_number_secondary',
+        # ]
+        #
+        # if hide_contact_data:
+        #     # set the semiprivate fields to the display value
+        #     prepend_contact_fields = [name + '_semiprivate_display' for name in prepend_contact_fields]
+
             # and add the display value to the readonly fields as well
-            self.readonly_fields = self.readonly_fields + prepend_contact_fields
+            # self.readonly_fields = self.readonly_fields + prepend_contact_fields
 
-        if privacy_readonly:
-            # we might not want the user to change the privacy level in order to cheat and see the hidden data
-            self.readonly_fields = self.readonly_fields + ['privacy_level']
+        # if privacy_readonly:
+        #     # we might not want the user to change the privacy level in order to cheat and see the hidden data
+        #     self.readonly_fields = self.readonly_fields + ['privacy_level']
 
-        current_contact_fields = prepend_contact_fields + default_contact_fields
+        default_contact_fields, custom_contact_fields = self._get_contact_field_names_tuple(hide_contact_data=hide_contact_data)
+        current_contact_fields = default_contact_fields + custom_contact_fields
 
-        self.fieldsets = (
+        return (
             ('Privacy', {
                 'fields': ('privacy_level',)
             }),
@@ -340,30 +397,30 @@ class PersonAdmin(admin.ModelAdmin):
             }),
         )
 
-    def add_view(self, *args, **kwargs):
-        self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
-        return super(PersonAdmin, self).add_view(*args, **kwargs)
+    # def add_view(self, *args, **kwargs):
+    #     # self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
+    #     return super(PersonAdmin, self).add_view(*args, **kwargs)
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        """
-        Allow the correct editors to set the correct fields.
-        """
-        obj = Person.objects.get(id=object_id)
+    # def change_view(self, request, object_id, form_url='', extra_context=None):
+    #     """
+    #     Allow the correct editors to set the correct fields.
+    #     """
+        # obj = Person.objects.get(id=object_id)
 
         # If the Source was created by the user, allow all editing. If the Source was
         # created by somoone else and is private, show nothing. If the Source was created
         # by someone else and is semiprivate, don't show/allow ediiting the contact fields,
         # and don't let the user change the privacy field. In all other cases, allow all editing.
-        if obj.created_by == request.user:
-            self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
-        elif obj.privacy_level == 'private_individual':
-            self.fieldsets = ()
-        elif obj.privacy_level == 'searchable':
-            self._set_fieldsets(hide_contact_data=True, privacy_readonly=True)
-        else:
-            self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
+        # if obj.created_by == request.user:
+        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
+        # elif obj.privacy_level == 'private_individual':
+        #     self.fieldsets = ()
+        # elif obj.privacy_level == 'searchable':
+        #     self._set_fieldsets(hide_contact_data=True, privacy_readonly=True)
+        # else:
+        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
 
-        return self.changeform_view(request, object_id, form_url, extra_context)
+        # return self.changeform_view(request, object_id, form_url, extra_context)
 
 
     def get_queryset(self, request):
@@ -380,9 +437,10 @@ class PersonAdmin(admin.ModelAdmin):
 
 
     def get_readonly_fields(self, request, obj=None):
-        if '/add/' in request.path:
+        if not obj:
             return self.readonly_fields
-        elif 'edit' not in request.GET:
+        elif '?edit=True' not in request.GET:
+            current_fieldsets = self._return_fieldsets()
             return flatten_fieldsets(self.fieldsets)
         else:
             return self.readonly_fields
