@@ -92,13 +92,19 @@ class InteractionAdmin(admin.ModelAdmin):
         notes field for them
         """
         obj = Interaction.objects.get(id=object_id)
-        # base_fields = ['privacy_level', ]
+
+        base_readonly_fields = ['created_by']
+
+        # always want these fields, no matter how we show the notes
+        fields_before_notes = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
+        fields_after_notes = ['created_by']
+
         if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes_semiprivate_display', 'created_by']
-            self.readonly_fields = ['created_by', 'privacy_level', 'notes_semiprivate_display']
+            self.fields = fields_before_notes + ['notes_semiprivate_display'] + fields_after_notes
+            self.readonly_fields = base_readonly_fields + ['privacy_level', 'notes_semiprivate_display']
         else:
-            self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'created_by']
-            self.readonly_fields = ['created_by']
+            self.fields = fields_before_notes + ['notes'] + fields_after_notes
+            self.readonly_fields = base_readonly_fields
         return self.changeform_view(request, object_id, form_url, extra_context)
 
 
