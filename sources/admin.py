@@ -92,6 +92,7 @@ class InteractionAdmin(admin.ModelAdmin):
         notes field for them
         """
         obj = Interaction.objects.get(id=object_id)
+        # base_fields = ['privacy_level', ]
         if obj.privacy_level == 'searchable' and obj.created_by != request.user:
             self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes_semiprivate_display', 'created_by']
             self.readonly_fields = ['created_by', 'privacy_level', 'notes_semiprivate_display']
@@ -252,13 +253,13 @@ class PersonAdmin(admin.ModelAdmin):
     phone_number_secondary_semiprivate_display.short_description = 'Phone number secondary'
 
 
-    def _set_fieldsets(self, hide_contact_data=False):
+    def _set_fieldsets(self, hide_contact_data=False, privacy_readonly=False):
         """
-        Sets `self.fieldsets`. This needs to be explicitly called every view that should have fieldsets,
-        because the contact info fieldset will have different fields depending on if we want to show or
-        hide the private contact data.
+        Sets `self.fieldsets` and `self.readonly_fields`. This needs to be explicitly called every view that
+        should have fieldsets, because the contact info fieldset will have different fields depending on if
+        we want to show or hide the private contact data.
 
-        This could be considerably more abstract and thus complicated, it could change fieldsets
+        NOTE: This could be considerably more abstract and thus complicated, it could change fieldsets
         besides the contact info. I decided to shy away from that right now -- we can always come
         back and change it, by eg passing in a dict with keys of the fieldsets and values of the
         additions, possibly in both pre- and append flavors.
@@ -266,6 +267,7 @@ class PersonAdmin(admin.ModelAdmin):
         Arguments:
             hide_contact_data - if True, replace the email & phone fields with the semiprivate display values, as well
                 as setting the readonly fields to include these fields.
+            privacy_readonly - if True, the privacy field is set to readonly
         """
         default_contact_fields = [
             'linkedin',
@@ -284,8 +286,11 @@ class PersonAdmin(admin.ModelAdmin):
             prepend_contact_fields = [name + '_semiprivate_display' for name in prepend_contact_fields]
 
             # and add the display value to the readonly fields as well
-            # also, we don't want the user to be able to change the privacy level if they can't see the contact details
-            self.readonly_fields = self.readonly_fields + prepend_contact_fields + ['privacy_level']
+            self.readonly_fields = self.readonly_fields + prepend_contact_fields
+
+        if privacy_readonly:
+            # we might not want the user to change the privacy level in order to cheat and see the hidden data
+            self.readonly_fields = self.readonly_fields + ['privacy_level']
 
         current_contact_fields = prepend_contact_fields + default_contact_fields
 
@@ -330,21 +335,27 @@ class PersonAdmin(admin.ModelAdmin):
         )
 
     def add_view(self, *args, **kwargs):
-        self._set_fieldsets(hide_contact_data=False)
+        self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
         return super(PersonAdmin, self).add_view(*args, **kwargs)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
-        If the privacy level is semi-private/searchable and the logged
-        in user is not the one who created the interaction, then remove
-        notes field for them
+        Allow the correct editors to set the correct fields.
         """
         obj = Person.objects.get(id=object_id)
 
-        if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            self._set_fieldsets(hide_contact_data=True)
+        # If the Source was created by the user, allow all editing. If the Source was
+        # created by somoone else and is private, show nothing. If the Source was created
+        # by someone else and is semiprivate, don't show/allow ediiting the contact fields,
+        # and don't let the user change the privacy field. In all other cases, allow all editing.
+        if obj.created_by == request.user:
+            self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
+        elif obj.privacy_level == 'private_individual':
+            self.fieldsets = ()
+        elif obj.privacy_level == 'searchable':
+            self._set_fieldsets(hide_contact_data=True, privacy_readonly=True)
         else:
-            self._set_fieldsets(hide_contact_data=False)
+            self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
 
         return self.changeform_view(request, object_id, form_url, extra_context)
 
