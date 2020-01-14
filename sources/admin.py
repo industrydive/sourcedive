@@ -84,22 +84,54 @@ class InteractionAdmin(admin.ModelAdmin):
     list_filter = ['interaction_type']
     filter_horizontal = ['interviewer']
 
+    _fields_always_readonly = ['created_by']
+    _fields_before_notes = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
+    _fields_after_notes = ['created_by']
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
+
+    def _determine_whether_to_hide_notes(self, request, obj):
         """
-        If the privacy level is semi-private/searchable and the logged
-        in user is not the one who created the interaction, then remove
-        notes field for them
+        Given a request and an object, determine if we need to hide the contact data for the object. If
+        the object is None (doesn't exist yet), always return False (we don't need to hide anything).
+
+        Returns True if we need to hide the notes, False if the user has permissions to see/edit the notes.
+
+        NOTE: this could be abstracted out, as it is virtually identical to _determine_whether_to_hide_contact_data
+        in PersonAdmin.
         """
-        obj = Interaction.objects.get(id=object_id)
-        if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes_semiprivate_display', 'created_by']
-            self.readonly_fields = ['created_by', 'privacy_level', 'notes_semiprivate_display']
+        if not obj:
+            return False
+        elif obj.privacy_level in ['searchable', 'private_individual'] and obj.created_by != request.user:
+            return True
         else:
-            self.fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'notes', 'created_by']
-            self.readonly_fields = ['created_by']
-        return self.changeform_view(request, object_id, form_url, extra_context)
+            return False
 
+    def get_readonly_fields(self, request, obj=None):
+        """
+        If the user doesn't have permission to see the notes, both the notes display and the
+        privacy level are added to the default readonly fields.
+
+        Use Django's built in hook for accessing readonly fields. NOTE: Manipulating self.readonly_fields
+        directly leads to problems.
+        """
+        hide_data = self._determine_whether_to_hide_notes(request, obj)
+        if hide_data:
+            return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
+        else:
+            return self._fields_always_readonly   
+
+
+    def get_fields(self, request, obj=None):
+        """
+        If the user doesn't have permission to view the notes, display the replacement notes field instead.
+
+        Use Django's built in hook for accessing fields. NOTE: Manipulating self.fields directly can lead to problems.
+        """
+        hide_data = self._determine_whether_to_hide_notes(request, obj)
+        if hide_data:
+            return self._fields_before_notes + ['notes_semiprivate_display'] + self._fields_after_notes
+        else:
+            return self._fields_before_notes + ['notes'] + self._fields_after_notes
 
     def get_queryset(self, request):
         """ only show private interactions to the person who created them """
@@ -224,10 +256,10 @@ class OrganizationFilter(SimpleListFilter):
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'privacy_level']
-    list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'timezone', 'city', 'state', 'privacy_level']
+    list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization']
-    readonly_fields = ['entry_method', 'entry_type', 'created_by']
+    readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated']
     # save_as = True
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
@@ -252,123 +284,111 @@ class PersonAdmin(admin.ModelAdmin):
     phone_number_secondary_semiprivate_display.short_description = 'Phone number secondary'
 
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
+    def _get_correct_contact_field_names(self, hide_contact_data=False):
         """
-        If the privacy level is semi-private/searchable and the logged
-        in user is not the one who created the interaction, then remove
-        notes field for them
+        Returns a list of the contact field names that differ depending on privacy. (the base field
+        names such as twitter or linkedin are not returned from here)
         """
-        obj = Person.objects.get(id=object_id)
-        if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            self.fieldsets = (
-                ('Privacy', {
-                    'fields': ('privacy_level',)
-                }),
-                ('General info', {
-                    'fields': (
-                        'prefix',
-                        'pronouns',
-                        'name',
-                        'title',
-                        'industries',
-                        'organization',
-                        'website',
-                        'type_of_expert',
-                        'expertise',
-                    ),
-                }),
-                ('Contact info', {
-                    'fields': (
-                        'email_address_semiprivate_display',
-                        'phone_number_primary_semiprivate_display',
-                        'phone_number_secondary_semiprivate_display',
-                        'linkedin',
-                        'twitter',
-                        'skype',
-                    ),
-                }),
-                ('Location info', {
-                    'fields': (
-                        'timezone',
-                        'city',
-                        'state',
-                        'country',
-                    ),
-                }),
-                ('Advanced info', {
-                    'classes': ('collapse',),
-                    'fields': (
-                        'entry_method',
-                        'entry_type',
-                        'created_by',
-                        # 'last_updated_by',
-                        'updated',
-                    ),
-                }),
-            )
-            self.readonly_fields = [
-                'created_by',
-                'entry_method',
-                'entry_type',
-                'email_address_semiprivate_display',
-                'phone_number_primary_semiprivate_display',
-                'phone_number_secondary_semiprivate_display',
-                'updated',
-            ]
+
+        prepend_contact_fields = [
+            'email_address',
+            'phone_number_primary',
+            'phone_number_secondary',
+        ]
+
+        if hide_contact_data:
+            # set the semiprivate fields to the display value
+            return [name + '_semiprivate_display' for name in prepend_contact_fields]
         else:
-            self.fieldsets = (
-                ('Privacy', {
-                    'fields': ('privacy_level',)
-                }),
-                ('General info', {
-                    'fields': (
-                        'prefix',
-                        'pronouns',
-                        'name',
-                        'title',
-                        'industries',
-                        'organization',
-                        'website',
-                        'type_of_expert',
-                        'expertise',
-                    ),
-                }),
-                ('Contact info', {
-                    'fields': (
-                        'email_address',
-                        'phone_number_primary',
-                        'phone_number_secondary',
-                        'linkedin',
-                        'twitter',
-                        'skype',
-                    ),
-                }),
-                ('Location info', {
-                    'fields': (
-                        'timezone',
-                        'city',
-                        'state',
-                        'country',
-                    ),
-                }),
-                ('Advanced info', {
-                    'classes': ('collapse',),
-                    'fields': (
-                        'entry_method',
-                        'entry_type',
-                        'created_by',
-                        # 'last_updated_by',
-                        'updated',
-                    ),
-                }),
-            )
-            self.readonly_fields = [
-                'created_by',
-                'entry_method',
-                'entry_type',
-                'updated',
-            ]
-        return self.changeform_view(request, object_id, form_url, extra_context)
+            return prepend_contact_fields
+
+
+    def _determine_whether_to_hide_contact_data(self, request, obj):
+        """
+        Given a request and an object, determine if we need to hide the contact data for the object. If
+        the object is None (doesn't exist yet), always return False (we don't need to hide anything).
+
+        Returns True if we need to hide the data, False if the user has permissions to see/edit the data.
+
+        NOTE: this could be abstracted out, as it is virtually identical to _determine_whether_to_hide_notes
+        in InteractionAdmin.
+        """
+        if not obj:
+            # If creating a new `Person`, give all permissions
+            return False
+        elif obj.created_by == request.user:
+            # Users can always see their own `Person`s
+            return False
+        elif obj.privacy_level in ['searchable', 'private_individual']:
+            # If the `Person` is at all private, and the user didn't create the
+            # object, don't allow viewing of contact data
+            return True
+        else:
+            # Only reach here for public `Person`s created by a different user
+            return False
+
+
+    def _return_fieldsets(self, hide_contact_data=False):
+        """
+        Returns the correct fieldsets based on whether we're hiding data. This is called when we're
+        building the fieldsets as well as when we are setting all fields to readonly.
+
+        NOTE: This could be considerably more abstract and thus complicated: it could change fieldsets
+        besides the contact info. I decided to shy away from that right now -- we can always come
+        back and change it.
+
+        Arguments:
+            hide_contact_data - if True, replace the email & phone fields with the semiprivate display values, as well
+                as setting the readonly fields to include these fields.
+        """
+
+        base_contact_fields = [
+            'linkedin',
+            'twitter',
+            'skype',
+        ]
+        custom_contact_fields = self._get_correct_contact_field_names(hide_contact_data=hide_contact_data)
+        current_contact_fields = base_contact_fields + custom_contact_fields
+
+        return (
+            ('Privacy', {
+                'fields': ('privacy_level',)
+            }),
+            ('General info', {
+                'fields': (
+                    'prefix',
+                    'pronouns',
+                    'name',
+                    'title',
+                    'industries',
+                    'organization',
+                    'website',
+                    'type_of_expert',
+                    'expertise',
+                ),
+            }),
+            ('Contact info', {
+                'fields': current_contact_fields
+            }),
+            ('Location info', {
+                'fields': (
+                    'timezone',
+                    'city',
+                    'state',
+                    'country',
+                ),
+            }),
+            ('Advanced info', {
+                'classes': ('collapse',),
+                'fields': (
+                    'entry_method',
+                    'entry_type',
+                    'created_by',
+                    # 'last_updated_by',
+                    'updated',
+                ),
+            }),
+        )
 
 
     def get_queryset(self, request):
@@ -384,12 +404,47 @@ class PersonAdmin(admin.ModelAdmin):
         )
 
 
-    def get_readonly_fields(self, request, obj=None):
-        if self.fieldsets and 'edit' not in request.GET:
-            return flatten_fieldsets(self.fieldsets)
-        elif 'add' in request.GET:
-            return self.readonly_fields
+    def get_fieldsets(self, request, obj=None):
+        """
+        Use Django's built in hook for accessing the fieldsets. Manipulating self.fieldsets directly
+        leads to problems.
+        """
+
+        # TODO: we may able to delete this if statement, as we believe the first case is covered
+        # by the queryset restrictions
+        if obj and obj.created_by != request.user and obj.privacy_level == 'private_individual':
+            # Cover the one weird edge case not covered by `_determine_whether_to_hide_contact_data`
+            # This is if the user is trying to view a person they're not even allowed to know exists
+            return [(None, {'fields': []})]
         else:
+            # Construct the correct fieldsets based on permissions
+            hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
+            return self._return_fieldsets(hide_contact_data=hide_contact_data)
+
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Use Django's built in hook for accessing readonly fields. Manipulating self.readonly_fields
+        directly leads to problems.
+        """
+        if not obj:
+            # If creating the obj, use only default readonly fields
+            return self.readonly_fields
+
+        hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
+
+        if 'edit' not in request.GET:
+            # If we're not editing, all fields should be readonly
+            # Use _return_fieldsets to get the correct fields for this permission level
+            current_fieldsets = self._return_fieldsets(hide_contact_data=hide_contact_data)
+            return flatten_fieldsets(current_fieldsets)
+        elif hide_contact_data:
+            # If we're editing, and data is hidden from the user, we want the contact data to be readonly
+            # We also want the privacy level field to be readonly
+            contact_fields_to_add = self._get_correct_contact_field_names(hide_contact_data=hide_contact_data)
+            return self.readonly_fields + ['privacy_level'] + contact_fields_to_add
+        else:
+            # If we're editing AND the user has permissions, use the default fields
             return self.readonly_fields
 
 
