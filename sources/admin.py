@@ -84,29 +84,51 @@ class InteractionAdmin(admin.ModelAdmin):
     list_filter = ['interaction_type']
     filter_horizontal = ['interviewer']
 
+    _fields_always_readonly = ['created_by']
+    _fields_before_notes = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
+    _fields_after_notes = ['created_by']
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
+
+    def _determine_whether_to_hide_notes(self, request, obj):
         """
-        If the privacy level is semi-private/searchable and the logged
-        in user is not the one who created the interaction, then remove
-        notes field for them
+        Given a request and an object, determine if we need to hide the contact data for the object. If
+        the object is None (doesn't exist yet), always return False (we don't need to hide anything).
+
+        Returns True if we need to hide the notes, False if the user has permissions to see/edit the notes.
         """
-        obj = Interaction.objects.get(id=object_id)
-
-        base_readonly_fields = ['created_by']
-
-        # always want these fields, no matter how we show the notes
-        fields_before_notes = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
-        fields_after_notes = ['created_by']
-
-        if obj.privacy_level == 'searchable' and obj.created_by != request.user:
-            self.fields = fields_before_notes + ['notes_semiprivate_display'] + fields_after_notes
-            self.readonly_fields = base_readonly_fields + ['privacy_level', 'notes_semiprivate_display']
+        if not obj:
+            return False
+        elif obj.privacy_level in ['searchable', 'private_individual'] and obj.created_by != request.user:
+            return True
         else:
-            self.fields = fields_before_notes + ['notes'] + fields_after_notes
-            self.readonly_fields = base_readonly_fields
-        return self.changeform_view(request, object_id, form_url, extra_context)
+            return False
 
+    def get_readonly_fields(self, request, obj=None):
+        """
+        If the user doesn't have permission to see the notes, both the notes display and the
+        privacy level are added to the default readonly fields.
+
+        Use Django's built in hook for accessing readonly fields. Manipulating self.readonly_fields
+        directly leads to problems.
+        """
+        hide_data = self._determine_whether_to_hide_notes(request, obj)
+        if hide_data:
+            return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
+        else:
+            return self._fields_always_readonly   
+
+
+    def get_fields(self, request, obj=None):
+        """
+        If the user doesn't have permission to view the notes, display the replacement notes field instead.
+
+        Use Django's built in hook for accessing fields. Manipulating self.fields directly can lead to problems.
+        """
+        hide_data = self._determine_whether_to_hide_notes(request, obj)
+        if hide_data:
+            return self._fields_before_notes + ['notes_semiprivate_display'] + self._fields_after_notes
+        else:
+            return self._fields_before_notes + ['notes'] + self._fields_after_notes
 
     def get_queryset(self, request):
         """ only show private interactions to the person who created them """
@@ -280,7 +302,8 @@ class PersonAdmin(admin.ModelAdmin):
 
     def _determine_whether_to_hide_contact_data(self, request, obj):
         """
-        Given a request and an object, determine if we need to hide the contact data for the object.
+        Given a request and an object, determine if we need to hide the contact data for the object. If
+        the object is None (doesn't exist yet), always return False (we don't need to hide anything).
 
         Returns True if we need to hide the data, False if the user has permissions to see/edit the data.
         """
