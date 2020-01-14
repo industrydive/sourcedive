@@ -285,35 +285,6 @@ class PersonAdmin(admin.ModelAdmin):
             return prepend_contact_fields
 
 
-    def get_fieldsets(self, request, obj=None):
-
-        # cover the one weird edge case
-        if obj and obj.created_by != request.user and obj.privacy_level == 'private_individual':
-            return [(None, {'fields': []})]
-        else:
-            hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
-            return self._return_fieldsets(hide_contact_data=hide_contact_data)
-        # if not obj:
-        #     return self._return_fieldsets(hide_contact_data=False)
-        # elif obj.created_by == request.user:
-        #     return self._return_fieldsets(hide_contact_data=False)
-        # elif obj.privacy_level == 'private_individual':
-        # elif obj.privacy_level == 'searchable':
-        #     return self._return_fieldsets(hide_contact_data=True)
-        # else:
-        #     return self._return_fieldsets(hide_contact_data=False)
-
-        # super(PersonAdmin, self).get_fieldsets()
-        # import pdb; pdb.set_trace()
-        # if obj.created_by == request.user:
-        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
-        # elif obj.privacy_level == 'private_individual':
-        #     self.fieldsets = ()
-        # elif obj.privacy_level == 'searchable':
-        #     self._set_fieldsets(hide_contact_data=True, privacy_readonly=True)
-        # else:
-        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
-
     def _determine_whether_to_hide_contact_data(self, request, obj):
         if not obj:
             return False
@@ -389,27 +360,6 @@ class PersonAdmin(admin.ModelAdmin):
             }),
         )
 
-    # def change_view(self, request, object_id, form_url='', extra_context=None):
-    #     """
-    #     Allow the correct editors to set the correct fields.
-    #     """
-        # obj = Person.objects.get(id=object_id)
-
-        # If the Source was created by the user, allow all editing. If the Source was
-        # created by somoone else and is private, show nothing. If the Source was created
-        # by someone else and is semiprivate, don't show/allow ediiting the contact fields,
-        # and don't let the user change the privacy field. In all other cases, allow all editing.
-        # if obj.created_by == request.user:
-        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
-        # elif obj.privacy_level == 'private_individual':
-        #     self.fieldsets = ()
-        # elif obj.privacy_level == 'searchable':
-        #     self._set_fieldsets(hide_contact_data=True, privacy_readonly=True)
-        # else:
-        #     self._set_fieldsets(hide_contact_data=False, privacy_readonly=False)
-
-        # return self.changeform_view(request, object_id, form_url, extra_context)
-
 
     def get_queryset(self, request):
         """ only show private sources to the person who created them """
@@ -424,13 +374,23 @@ class PersonAdmin(admin.ModelAdmin):
         )
 
 
+    def get_fieldsets(self, request, obj=None):
+
+        # cover the one weird edge case
+        if obj and obj.created_by != request.user and obj.privacy_level == 'private_individual':
+            return [(None, {'fields': []})]
+        else:
+            hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
+            return self._return_fieldsets(hide_contact_data=hide_contact_data)
+
+
     def get_readonly_fields(self, request, obj=None):
         if not obj:
             return self.readonly_fields
-
+        # import pdb; pdb.set_trace()
         hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
 
-        if '?edit=True' not in request.GET:
+        if 'edit' not in request.GET:
             current_fieldsets = self._return_fieldsets(hide_contact_data=hide_contact_data)
             return flatten_fieldsets(current_fieldsets)
         elif hide_contact_data:
