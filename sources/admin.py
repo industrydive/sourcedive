@@ -95,6 +95,9 @@ class InteractionAdmin(admin.ModelAdmin):
         the object is None (doesn't exist yet), always return False (we don't need to hide anything).
 
         Returns True if we need to hide the notes, False if the user has permissions to see/edit the notes.
+
+        NOTE: this could be abstracted out, as it is virtually identical to _determine_whether_to_hide_contact_data
+        in PersonAdmin.
         """
         if not obj:
             return False
@@ -306,6 +309,9 @@ class PersonAdmin(admin.ModelAdmin):
         the object is None (doesn't exist yet), always return False (we don't need to hide anything).
 
         Returns True if we need to hide the data, False if the user has permissions to see/edit the data.
+
+        NOTE: this could be abstracted out, as it is virtually identical to _determine_whether_to_hide_notes
+        in InteractionAdmin.
         """
         if not obj:
             # If creating a new `Person`, give all permissions
