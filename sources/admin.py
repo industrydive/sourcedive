@@ -108,7 +108,7 @@ class InteractionAdmin(admin.ModelAdmin):
         If the user doesn't have permission to see the notes, both the notes display and the
         privacy level are added to the default readonly fields.
 
-        Use Django's built in hook for accessing readonly fields. Manipulating self.readonly_fields
+        Use Django's built in hook for accessing readonly fields. NOTE: Manipulating self.readonly_fields
         directly leads to problems.
         """
         hide_data = self._determine_whether_to_hide_notes(request, obj)
@@ -122,7 +122,7 @@ class InteractionAdmin(admin.ModelAdmin):
         """
         If the user doesn't have permission to view the notes, display the replacement notes field instead.
 
-        Use Django's built in hook for accessing fields. Manipulating self.fields directly can lead to problems.
+        Use Django's built in hook for accessing fields. NOTE: Manipulating self.fields directly can lead to problems.
         """
         hide_data = self._determine_whether_to_hide_notes(request, obj)
         if hide_data:
@@ -311,14 +311,14 @@ class PersonAdmin(admin.ModelAdmin):
             # If creating a new `Person`, give all permissions
             return False
         elif obj.created_by == request.user:
-            # users can always see their own `Person`s
+            # Users can always see their own `Person`s
             return False
         elif obj.privacy_level in ['searchable', 'private_individual']:
-            # if the `Person` is at all private, and the user didn't create the
+            # If the `Person` is at all private, and the user didn't create the
             # object, don't allow viewing of contact data
             return True
         else:
-            # only reach here for public `Person`s created by a different user
+            # Only reach here for public `Person`s created by a different user
             return False
 
 
@@ -405,11 +405,11 @@ class PersonAdmin(admin.ModelAdmin):
         """
 
         if obj and obj.created_by != request.user and obj.privacy_level == 'private_individual':
-            # cover the one weird edge case not covered by `_determine_whether_to_hide_contact_data`
-            # this is if the user is trying to view a person they're not even allowed to know exists
+            # Cover the one weird edge case not covered by `_determine_whether_to_hide_contact_data`
+            # This is if the user is trying to view a person they're not even allowed to know exists
             return [(None, {'fields': []})]
         else:
-            # construct the correct fieldsets based on permissions
+            # Construct the correct fieldsets based on permissions
             hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
             return self._return_fieldsets(hide_contact_data=hide_contact_data)
 
@@ -420,23 +420,23 @@ class PersonAdmin(admin.ModelAdmin):
         directly leads to problems.
         """
         if not obj:
-            # if creating the obj, use only default readonly fields
+            # If creating the obj, use only default readonly fields
             return self.readonly_fields
 
         hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
 
         if 'edit' not in request.GET:
-            # if we're not editing, all fields should be readonly
-            # use _return_fieldsets to get the correct fields for this permission level
+            # If we're not editing, all fields should be readonly
+            # Use _return_fieldsets to get the correct fields for this permission level
             current_fieldsets = self._return_fieldsets(hide_contact_data=hide_contact_data)
             return flatten_fieldsets(current_fieldsets)
         elif hide_contact_data:
-            # if we're editing,, and data is hidden from the user, we want the contact data to be readonly
-            # we also want the privacy level field to be readonly
+            # If we're editing, and data is hidden from the user, we want the contact data to be readonly
+            # We also want the privacy level field to be readonly
             contact_fields_to_add = self._get_correct_contact_field_names(hide_contact_data=hide_contact_data)
             return self.readonly_fields + ['privacy_level'] + contact_fields_to_add
         else:
-            # if we're editing AND the user has permissions, use the default fields
+            # If we're editing AND the user has permissions, use the default fields
             return self.readonly_fields
 
 
