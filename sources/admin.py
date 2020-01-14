@@ -258,13 +258,6 @@ class PersonAdmin(admin.ModelAdmin):
         return format_html(display_text)
     phone_number_secondary_semiprivate_display.short_description = 'Phone number secondary'
 
-    # def get_readonly_fields(self, request, obj=None):
-    #     # if creating the obj, just use the default readonly fields
-    #     if not obj:
-    #         return self.readonly_fields
-    #
-    #     if '?edit=true' in request.path:
-    #         import pdb
 
     def _get_correct_contact_field_names(self, hide_contact_data=False):
         """
@@ -286,26 +279,34 @@ class PersonAdmin(admin.ModelAdmin):
 
 
     def _determine_whether_to_hide_contact_data(self, request, obj):
+        """
+        Given a request and an object, determine if we need to hide the contact data for the object.
+
+        Returns True if we need to hide the data, False if the user has permissions to see/edit the data.
+        """
         if not obj:
+            # If creating a new `Person`, give all permissions
             return False
         elif obj.created_by == request.user:
+            # users can always see their own `Person`s
             return False
-        # elif obj.privacy_level == 'private_individual':
-        #     return [(None, {'fields': []})]
         elif obj.privacy_level in ['searchable', 'private_individual']:
+            # if the `Person` is at all private, and the user didn't create the
+            # object, don't allow viewing of contact data
             return True
         else:
+            # only reach here for public `Person`s created by a different user
             return False
 
 
     def _return_fieldsets(self, hide_contact_data=False):
         """
-        Returns the correct fieldsets based on whether we're hiding data.
+        Returns the correct fieldsets based on whether we're hiding data. This is called when we're
+        building the fieldsets as well as when we are setting all fields to readonly.
 
-        NOTE: This could be considerably more abstract and thus complicated, it could change fieldsets
+        NOTE: This could be considerably more abstract and thus complicated: it could change fieldsets
         besides the contact info. I decided to shy away from that right now -- we can always come
-        back and change it, by eg passing in a dict with keys of the fieldsets and values of the
-        additions, possibly in both pre- and append flavors.
+        back and change it.
 
         Arguments:
             hide_contact_data - if True, replace the email & phone fields with the semiprivate display values, as well
@@ -375,28 +376,44 @@ class PersonAdmin(admin.ModelAdmin):
 
 
     def get_fieldsets(self, request, obj=None):
+        """
+        Use Django's built in hook for accessing the fieldsets. Manipulating self.fieldsets directly
+        leads to problems.
+        """
 
-        # cover the one weird edge case
         if obj and obj.created_by != request.user and obj.privacy_level == 'private_individual':
+            # cover the one weird edge case not covered by `_determine_whether_to_hide_contact_data`
+            # this is if the user is trying to view a person they're not even allowed to know exists
             return [(None, {'fields': []})]
         else:
+            # construct the correct fieldsets based on permissions
             hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
             return self._return_fieldsets(hide_contact_data=hide_contact_data)
 
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        Use Django's built in hook for accessing readonly fields. Manipulating self.readonly_fields
+        directly leads to problems.
+        """
         if not obj:
+            # if creating the obj, use only default readonly fields
             return self.readonly_fields
-        # import pdb; pdb.set_trace()
+
         hide_contact_data = self._determine_whether_to_hide_contact_data(request, obj)
 
         if 'edit' not in request.GET:
+            # if we're not editing, all fields should be readonly
+            # use _return_fieldsets to get the correct fields for this permission level
             current_fieldsets = self._return_fieldsets(hide_contact_data=hide_contact_data)
             return flatten_fieldsets(current_fieldsets)
         elif hide_contact_data:
+            # if we're editing,, and data is hidden from the user, we want the contact data to be readonly
+            # we also want the privacy level field to be readonly
             contact_fields_to_add = self._get_correct_contact_field_names(hide_contact_data=hide_contact_data)
             return self.readonly_fields + ['privacy_level'] + contact_fields_to_add
         else:
+            # if we're editing AND the user has permissions, use the default fields
             return self.readonly_fields
 
 
