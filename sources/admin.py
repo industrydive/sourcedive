@@ -410,6 +410,8 @@ class PersonAdmin(admin.ModelAdmin):
         leads to problems.
         """
 
+        # TODO: we may able to delete this if statement, as we believe the first case is covered
+        # by the queryset restrictions
         if obj and obj.created_by != request.user and obj.privacy_level == 'private_individual':
             # Cover the one weird edge case not covered by `_determine_whether_to_hide_contact_data`
             # This is if the user is trying to view a person they're not even allowed to know exists
