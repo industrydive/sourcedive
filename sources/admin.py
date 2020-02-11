@@ -7,12 +7,20 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from sources.models import (
+    Dive,
     Expertise,
     Industry,
     Interaction,
     Organization,
     Person,
 )
+
+
+class DiveAdmin(admin.ModelAdmin):
+    fields = ['name', 'users']
+    filter_horizontal = ['users']
+    list_display = ['name']
+    search_fields = ['name']
 
 
 class ExpertiseAdmin(admin.ModelAdmin):
@@ -258,7 +266,7 @@ class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'gatekeeper', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
-    filter_horizontal = ['expertise', 'industries', 'organization']
+    filter_horizontal = ['expertise', 'industries', 'organization', 'owned_by']
     readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated']
     # save_as = True
     save_on_top = True
@@ -382,6 +390,7 @@ class PersonAdmin(admin.ModelAdmin):
             ('Advanced info', {
                 'classes': ('collapse',),
                 'fields': (
+                    'owned_by',
                     'entry_method',
                     'entry_type',
                     'created_by',
@@ -472,6 +481,7 @@ class PersonAdmin(admin.ModelAdmin):
         super(PersonAdmin, self).save_model(request, obj, form, change)
 
 
+admin.site.register(Dive, DiveAdmin)
 admin.site.register(Expertise, ExpertiseAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(Industry, IndustryAdmin)

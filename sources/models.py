@@ -22,6 +22,14 @@ class BasicInfo(models.Model):
         abstract = True
 
 
+class Dive(BasicInfo):
+    name = models.CharField(max_length=255, null=True, blank=False, unique=True)
+    users = models.ManyToManyField(User, blank=True, related_name='dive_members')
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+
 class Expertise(BasicInfo):
     name = models.CharField(max_length=255, null=True, blank=False, unique=True, verbose_name='Type of expertise')
 
@@ -85,6 +93,7 @@ class Person(BasicInfo, PrivacyMixin):
     notes = models.TextField(null=True, blank=True)
     organization = models.ManyToManyField(Organization, blank=True)
     # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization') # , help_text='Comma-separated list')
+    owned_by = models.ManyToManyField(Dive, blank=True, related_name='dive_owner', help_text='These are the dives that have ownership of this source.')
     phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Primary phone number', help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
     prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name='Prefix')
