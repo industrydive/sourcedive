@@ -77,6 +77,7 @@ class Person(BasicInfo, PrivacyMixin):
     entry_type = models.CharField(max_length=15, null=True, blank=True, default='manual')
     expertise = models.ManyToManyField(Expertise, blank=True)
     # expertise = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Expertise')
+    gatekeeper = models.BooleanField(blank=True, default=False, help_text='Is this person the contact for another source?')
     industries = models.ManyToManyField(Industry, blank=True)
     language = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Language')
     linkedin = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='LinkedIn URL')
