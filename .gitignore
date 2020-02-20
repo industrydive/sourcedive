@@ -6,5 +6,6 @@ misc/
 Pipfile*
 settings_private.py
 static/
+sourcedive_import_test_*.csv
 latest_export*
 *.json
