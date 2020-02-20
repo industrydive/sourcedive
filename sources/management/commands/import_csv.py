@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
 from sourcedive.settings import TEST_ENV
-from sources.models import Person, Expertise, Industry, Organization
+from sources.models import Dive, Expertise, Industry, Organization, Person
 
 
 def create_person(data_dict, m2m_dict):
@@ -52,6 +52,14 @@ def create_person(data_dict, m2m_dict):
                 for value in values_list:
                     organization_obj, organization_created = Organization.objects.get_or_create(name=value)
                     person_obj.organization.add(organization_obj)
+            # owned by (M2M)
+            owned_by_values = m2m_dict['owned_by']
+            if owned_by_values:
+                values_list = [value.strip() for value in owned_by_values.split(',')]
+                for value in values_list:
+                    dive_obj, dive_created = Dive.objects.get_or_create(name=value)
+                    person_obj.owned_by.add(dive_obj)
+            # let us know how it went
             if person_created:
                 create_message = f'Success: {person_obj}'
             else:
@@ -141,7 +149,7 @@ def import_csv(csv_file):
                     'phone_number_primary': row['phone_number_primary'],
                     'phone_number_secondary': row['phone_number_secondary'],
                     'twitter': row['twitter'],
-                    'notes': row['notes'],
+                    # 'notes': row['notes'],
                     # 'website': row['website'],
                     'prefix': row['prefix'],
                     # 'language': 'English', ## m2mfield
@@ -158,6 +166,7 @@ def import_csv(csv_file):
                     'expertise': row['expertise'],
                     'industries': row['industries'],
                     'organization': row['organization'],
+                    'owned_by': row['owned_by'],
                 }
                 create_person(csv_to_model_dict, m2m_dict)
         # message = '\nThe following rows failed: \n\n {}'.format(failed_rows)
