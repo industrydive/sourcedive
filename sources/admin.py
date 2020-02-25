@@ -265,9 +265,9 @@ class OrganizationFilter(SimpleListFilter):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
-    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
+    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'import_notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization', 'exportable_by']
-    readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated']
+    readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated', 'import_notes']
     # save_as = True
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
@@ -396,6 +396,7 @@ class PersonAdmin(admin.ModelAdmin):
                     'created_by',
                     # 'last_updated_by',
                     'updated',
+                    'import_notes'
                 ),
             }),
         )
