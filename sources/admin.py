@@ -266,7 +266,7 @@ class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'gatekeeper', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
-    filter_horizontal = ['expertise', 'industries', 'organization', 'owned_by']
+    filter_horizontal = ['expertise', 'industries', 'organization', 'exportable_by']
     readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated']
     # save_as = True
     save_on_top = True
@@ -390,7 +390,7 @@ class PersonAdmin(admin.ModelAdmin):
             ('Advanced info', {
                 'classes': ('collapse',),
                 'fields': (
-                    'owned_by',
+                    'exportable_by',
                     'entry_method',
                     'entry_type',
                     'created_by',
