@@ -53,12 +53,12 @@ def create_person(data_dict, m2m_dict):
                     organization_obj, organization_created = Organization.objects.get_or_create(name=value)
                     person_obj.organization.add(organization_obj)
             # owned by (M2M)
-            owned_by_values = m2m_dict['owned_by']
-            if owned_by_values:
-                values_list = [value.strip() for value in owned_by_values.split(',')]
+            exportable_by_values = m2m_dict['exportable_by']
+            if exportable_by_values:
+                values_list = [value.strip() for value in exportable_by_values.split(',')]
                 for value in values_list:
                     dive_obj, dive_created = Dive.objects.get_or_create(name=value)
-                    person_obj.owned_by.add(dive_obj)
+                    person_obj.exportable_by.add(dive_obj)
             # let us know how it went
             if person_created:
                 create_message = f'Success: {person_obj}'
@@ -166,7 +166,7 @@ def import_csv(csv_file):
                     'expertise': row['expertise'],
                     'industries': row['industries'],
                     'organization': row['organization'],
-                    'owned_by': row['owned_by'],
+                    'exportable_by': row['exportable_by'],
                 }
                 create_person(csv_to_model_dict, m2m_dict)
         # message = '\nThe following rows failed: \n\n {}'.format(failed_rows)
