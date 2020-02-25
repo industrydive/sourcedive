@@ -22,6 +22,14 @@ class BasicInfo(models.Model):
         abstract = True
 
 
+class Dive(BasicInfo):
+    name = models.CharField(max_length=255, null=True, blank=False, unique=True)
+    users = models.ManyToManyField(User, blank=True, related_name='dive_members')
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+
 class Expertise(BasicInfo):
     name = models.CharField(max_length=255, null=True, blank=False, unique=True, verbose_name='Type of expertise')
 
@@ -77,6 +85,7 @@ class Person(BasicInfo, PrivacyMixin):
     entry_type = models.CharField(max_length=15, null=True, blank=True, default='manual')
     expertise = models.ManyToManyField(Expertise, blank=True)
     # expertise = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Expertise')
+    exportable_by = models.ManyToManyField(Dive, blank=True, related_name='dive_owner', help_text='These are the dives that can export this source.')
     gatekeeper = models.BooleanField(blank=True, default=False, help_text='Is this person the contact for another source?')
     industries = models.ManyToManyField(Industry, blank=True)
     language = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Language')
