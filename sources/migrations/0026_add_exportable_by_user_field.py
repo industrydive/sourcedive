@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('sources', '0026_add_affiliated_orgs_field'),
+        ('sources', '0025_change_prefix_to_free_text'),
     ]
 
     operations = [
@@ -27,3 +27,4 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(blank=True, help_text='These are the users who can export this source.', related_name='exportable_user', to=settings.AUTH_USER_MODEL, verbose_name='Exportable by (User)'),
         ),
     ]
+
