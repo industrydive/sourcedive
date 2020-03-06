@@ -95,7 +95,6 @@ class Person(BasicInfo, PrivacyMixin):
     notes = models.TextField(null=True, blank=True)
     organization = models.ManyToManyField(Organization, blank=True, verbose_name='Organization (primary)')
     # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization') # , help_text='Comma-separated list')
-    organization_additional = models.ManyToManyField(Organization, blank=True, related_name='additional_affiliations', verbose_name='Additional affiliations')
     phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Primary phone number', help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
     prefix = models.CharField(max_length=30, null=True, blank=True, verbose_name='Prefix')
