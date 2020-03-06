@@ -93,7 +93,7 @@ class Person(BasicInfo, PrivacyMixin):
     linkedin = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='LinkedIn URL')
     name = models.CharField(max_length=255, null=True, blank=False)
     notes = models.TextField(null=True, blank=True)
-    organization = models.ManyToManyField(Organization, blank=True, verbose_name='Organization (primary)')
+    organization = models.ManyToManyField(Organization, blank=True)
     # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization') # , help_text='Comma-separated list')
     phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Primary phone number', help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
