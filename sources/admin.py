@@ -265,8 +265,8 @@ class OrganizationFilter(SimpleListFilter):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
-    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
-    filter_horizontal = ['expertise', 'industries', 'organization', 'exportable_by']
+    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'organization_additional', 'state', 'title', 'type_of_expert', 'twitter', 'website']
+    filter_horizontal = ['expertise', 'industries', 'organization', 'organization_additional','exportable_by']
     readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated']
     # save_as = True
     save_on_top = True
@@ -368,12 +368,13 @@ class PersonAdmin(admin.ModelAdmin):
                     'pronouns',
                     'name',
                     'title',
-                    'gatekeeper',
                     'industries',
                     'organization',
                     'website',
                     'type_of_expert',
                     'expertise',
+                    'organization_additional',
+                    'gatekeeper',
                 ),
             }),
             ('Contact info', {
