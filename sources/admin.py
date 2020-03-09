@@ -75,10 +75,14 @@ class InteractionInline(admin.TabularInline):
         )
 
     def interviewers_listview(self, obj):
-        return InteractionAdmin.interviewers_listview(self, obj)
+        return InteractionAdmin.interviewers_listview(None, obj)
     interviewers_listview.short_description = 'Interviewer(s)'
 
 class InterviewerChoiceField(ModelMultipleChoiceField):
+    """
+        This will change how the interviewer is displayed inside the dropdowns
+        It will now show the user's full name instead of the user's username
+    """
     def label_from_instance(self, obj):
         return obj.get_full_name()
 
@@ -175,6 +179,10 @@ class InteractionAdmin(admin.ModelAdmin):
         super(InteractionAdmin, self).save_model(request, obj, form, change)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
+        """
+            Overwrites formfield_for_manytomany is db field is interviewer.
+            Allows us to display user's full name in select dropdowns
+        """
         if db_field.name == 'interviewer':
             return InterviewerChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('interviewer', is_stacked=False))
         return super().formfield_for_manytomany(db_field, request, **kwargs)
