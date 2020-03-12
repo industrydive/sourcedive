@@ -19,7 +19,7 @@ from sources.models import (
 )
 
 
-def get_username(obj):
+def get_user_display_name(obj):
     return obj.get_full_name() or obj.username
 
 class UserChoiceField(ModelMultipleChoiceField):
@@ -29,7 +29,7 @@ class UserChoiceField(ModelMultipleChoiceField):
         instead of the user's username.
     """
     def label_from_instance(self, obj):
-        return get_username(obj)
+        return get_user_display_name(obj)
 
 class DiveAdmin(admin.ModelAdmin):
     fields = ['name', 'users']
@@ -205,12 +205,12 @@ class InteractionAdmin(admin.ModelAdmin):
             This will display a custom created_by field by using
             the user's first and last name instead of the user's username
         """
-        return get_username(obj.created_by)
+        return get_user_display_name(obj.created_by)
     get_created_by.short_description = 'Created By'
 
     def interviewers_listview(self, obj):
         interviewers_list = obj.interviewer.all()
-        interviewers = [get_username(interviewer) for interviewer in interviewers_list]
+        interviewers = [get_user_display_name(interviewer) for interviewer in interviewers_list]
         return ', '.join(interviewers)
     interviewers_listview.short_description = 'Interviewer(s)'
 
@@ -530,7 +530,7 @@ class PersonAdmin(admin.ModelAdmin):
             This will display a custom created_by field by using
             the user's first and last name instead of the user's username
         """
-        return get_username(obj.created_by)
+        return get_user_display_name(obj.created_by)
     get_created_by.short_description = 'Created By'
 
 
