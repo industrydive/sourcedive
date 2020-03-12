@@ -19,11 +19,32 @@ from sources.models import (
 )
 
 
+def get_username(obj):
+    return obj.get_full_name() or obj.username
+
+class UserChoiceField(ModelMultipleChoiceField):
+    """
+        This will change how the user (might be field interviewer, etc) is
+        displayed inside the dropdowns. It will now show the user's full name
+        instead of the user's username.
+    """
+    def label_from_instance(self, obj):
+        return get_username(obj)
+
 class DiveAdmin(admin.ModelAdmin):
     fields = ['name', 'users']
     filter_horizontal = ['users']
     list_display = ['name']
     search_fields = ['name']
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        """
+            Overwrites formfield_for_manytomany is db field is users.
+            Allows us to display user's full name in select dropdowns
+        """
+        if db_field.name == 'users':
+            return UserChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('users', is_stacked=False))
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 class ExpertiseAdmin(admin.ModelAdmin):
@@ -78,14 +99,6 @@ class InteractionInline(admin.TabularInline):
         return InteractionAdmin.interviewers_listview(None, obj)
     interviewers_listview.short_description = 'Interviewer(s)'
 
-class InterviewerChoiceField(ModelMultipleChoiceField):
-    """
-        This will change how the interviewer is displayed inside the dropdowns
-        It will now show the user's full name instead of the user's username
-    """
-    def label_from_instance(self, obj):
-        return obj.get_full_name()
-
 class InteractionNewInline(admin.TabularInline):
     model = Interaction
     fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
@@ -106,7 +119,7 @@ class InteractionNewInline(admin.TabularInline):
 class InteractionAdmin(admin.ModelAdmin):
     list_display = ['interviewee', 'interaction_type', 'date_time', 'get_created_by', 'interviewers_listview', 'privacy_level']
     list_filter = ['interaction_type']
-    #filter_horizontal = ['interviewer']
+    filter_horizontal = ['interviewer']
 
     _fields_always_readonly = ['get_created_by']
     _fields_before_notes = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
@@ -184,7 +197,7 @@ class InteractionAdmin(admin.ModelAdmin):
             Allows us to display user's full name in select dropdowns
         """
         if db_field.name == 'interviewer':
-            return InterviewerChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('interviewer', is_stacked=False))
+            return UserChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('interviewer', is_stacked=False))
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def get_created_by(self, obj):
@@ -192,12 +205,12 @@ class InteractionAdmin(admin.ModelAdmin):
             This will display a custom created_by field by using
             the user's first and last name instead of the user's username
         """
-        return obj.created_by.get_full_name()
+        return get_username(obj.created_by)
     get_created_by.short_description = 'Created By'
 
     def interviewers_listview(self, obj):
         interviewers_list = obj.interviewer.all()
-        interviewers = [interviewer.get_full_name() for interviewer in interviewers_list]
+        interviewers = [get_username(interviewer) for interviewer in interviewers_list]
         return ', '.join(interviewers)
     interviewers_listview.short_description = 'Interviewer(s)'
 
@@ -517,7 +530,7 @@ class PersonAdmin(admin.ModelAdmin):
             This will display a custom created_by field by using
             the user's first and last name instead of the user's username
         """
-        return obj.created_by.get_full_name()
+        return get_username(obj.created_by)
     get_created_by.short_description = 'Created By'
 
 
