@@ -17,6 +17,8 @@ if TEST_ENV:
 else:
     DEBUG = False
 
+DEBUG = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -30,6 +32,7 @@ INSTALLED_APPS = [
     # 'social.apps.django_app.default',
     'social_django',
     'debug_toolbar',
+    'autosave'
 ]
 
 MIDDLEWARE = [
@@ -127,7 +130,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'media'),
 )
 
-# Python social auth 
+# Python social auth
 AUTHENTICATION_BACKENDS = (
     'social.backends.google.GoogleOAuth2',
     'social_core.backends.google.GoogleOpenId',

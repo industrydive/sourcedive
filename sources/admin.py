@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
+from autosave.mixins import AdminAutoSaveMixin
 
 from sources.models import (
     Dive,
@@ -87,7 +88,7 @@ class InteractionNewInline(admin.TabularInline):
         return qs.none()
 
 
-class InteractionAdmin(admin.ModelAdmin):
+class InteractionAdmin(AdminAutoSaveMixin, admin.ModelAdmin):
     list_display = ['interviewee', 'interaction_type', 'date_time', 'created_by', 'interviewers_listview', 'privacy_level']
     list_filter = ['interaction_type']
     filter_horizontal = ['interviewer']
@@ -95,6 +96,8 @@ class InteractionAdmin(admin.ModelAdmin):
     _fields_always_readonly = ['created_by']
     _fields_before_notes = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
     _fields_after_notes = ['created_by']
+
+    autosave_last_modified_field = 'notes'
 
 
     def _determine_whether_to_hide_notes(self, request, obj):
@@ -126,7 +129,7 @@ class InteractionAdmin(admin.ModelAdmin):
         if hide_data:
             return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
         else:
-            return self._fields_always_readonly   
+            return self._fields_always_readonly
 
 
     def get_fields(self, request, obj=None):
@@ -181,7 +184,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
 
-    
+
 # for SimpleListFilter classes
 all_sources = Person.objects.all()
 private_sources = all_sources.filter(privacy_level='private_individual')
@@ -262,7 +265,7 @@ class OrganizationFilter(SimpleListFilter):
             return queryset
 
 
-class PersonAdmin(admin.ModelAdmin):
+class PersonAdmin(AdminAutoSaveMixin, admin.ModelAdmin):
     list_display = ['name', 'updated', 'created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
@@ -272,6 +275,8 @@ class PersonAdmin(admin.ModelAdmin):
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
     inlines = (InteractionInline, InteractionNewInline,)
+
+    autosave_last_modified_field = 'website'
 
 
     def email_address_semiprivate_display(self, obj):
