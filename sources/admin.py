@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.contrib.admin.filters import SimpleListFilter
 from django.contrib.admin.utils import flatten_fieldsets
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth.models import User
 from django.db.models import Q
+from django.forms import ModelMultipleChoiceField
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
@@ -16,11 +19,32 @@ from sources.models import (
 )
 
 
+def get_user_display_name(obj):
+    return obj.get_full_name() or obj.username
+
+class UserChoiceField(ModelMultipleChoiceField):
+    """
+        This will change how the user (might be field interviewer, etc) is
+        displayed inside the dropdowns. It will now show the user's full name
+        instead of the user's username.
+    """
+    def label_from_instance(self, obj):
+        return get_user_display_name(obj)
+
 class DiveAdmin(admin.ModelAdmin):
     fields = ['name', 'users']
     filter_horizontal = ['users']
     list_display = ['name']
     search_fields = ['name']
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        """
+            Overwrites formfield_for_manytomany is db field is users.
+            Allows us to display user's full name in select dropdowns
+        """
+        if db_field.name == 'users':
+            return UserChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('users', is_stacked=False))
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 class ExpertiseAdmin(admin.ModelAdmin):
@@ -40,7 +64,7 @@ class IndustryAdmin(admin.ModelAdmin):
 class InteractionInline(admin.TabularInline):
     model = Interaction
     # the fields are listed explicity to avoid showing notes, which can't be easily displayed like the other hidden field values
-    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes_view']
+    fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewers_listview', 'created_by', 'notes_view']
 
     max_num = 0
     readonly_fields = fields  # ['notes_semiprivate']
@@ -71,6 +95,9 @@ class InteractionInline(admin.TabularInline):
             Q(created_by=request.user, privacy_level='private_individual')
         )
 
+    def interviewers_listview(self, obj):
+        return InteractionAdmin.interviewers_listview(None, obj)
+    interviewers_listview.short_description = 'Interviewer(s)'
 
 class InteractionNewInline(admin.TabularInline):
     model = Interaction
@@ -86,15 +113,17 @@ class InteractionNewInline(admin.TabularInline):
 
         return qs.none()
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        return InteractionAdmin.formfield_for_manytomany(self, db_field, request, **kwargs)
 
 class InteractionAdmin(admin.ModelAdmin):
-    list_display = ['interviewee', 'interaction_type', 'date_time', 'created_by', 'interviewers_listview', 'privacy_level']
+    list_display = ['interviewee', 'interaction_type', 'date_time', 'get_created_by', 'interviewers_listview', 'privacy_level']
     list_filter = ['interaction_type']
     filter_horizontal = ['interviewer']
 
-    _fields_always_readonly = ['created_by']
+    _fields_always_readonly = ['get_created_by']
     _fields_before_notes = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer']
-    _fields_after_notes = ['created_by']
+    _fields_after_notes = ['get_created_by']
 
 
     def _determine_whether_to_hide_notes(self, request, obj):
@@ -126,7 +155,7 @@ class InteractionAdmin(admin.ModelAdmin):
         if hide_data:
             return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
         else:
-            return self._fields_always_readonly   
+            return self._fields_always_readonly
 
 
     def get_fields(self, request, obj=None):
@@ -162,10 +191,26 @@ class InteractionAdmin(admin.ModelAdmin):
         ## save
         super(InteractionAdmin, self).save_model(request, obj, form, change)
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        """
+            Overwrites formfield_for_manytomany is db field is interviewer.
+            Allows us to display user's full name in select dropdowns
+        """
+        if db_field.name == 'interviewer':
+            return UserChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('interviewer', is_stacked=False))
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+    def get_created_by(self, obj):
+        """
+            This will display a custom created_by field by using
+            the user's first and last name instead of the user's username
+        """
+        return get_user_display_name(obj.created_by)
+    get_created_by.short_description = 'Created By'
 
     def interviewers_listview(self, obj):
         interviewers_list = obj.interviewer.all()
-        interviewers = [interviewer.username for interviewer in interviewers_list]
+        interviewers = [get_user_display_name(interviewer) for interviewer in interviewers_list]
         return ', '.join(interviewers)
     interviewers_listview.short_description = 'Interviewer(s)'
 
@@ -181,7 +226,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
 
-    
+
 # for SimpleListFilter classes
 all_sources = Person.objects.all()
 private_sources = all_sources.filter(privacy_level='private_individual')
@@ -263,11 +308,11 @@ class OrganizationFilter(SimpleListFilter):
 
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ['name', 'updated', 'created_by', 'privacy_level']
+    list_display = ['name', 'updated', 'get_created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
     search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization', 'exportable_by']
-    readonly_fields = ['entry_method', 'entry_type', 'created_by', 'updated']
+    readonly_fields = ['entry_method', 'entry_type', 'get_created_by', 'updated']
     # save_as = True
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
@@ -393,7 +438,7 @@ class PersonAdmin(admin.ModelAdmin):
                     'exportable_by',
                     'entry_method',
                     'entry_type',
-                    'created_by',
+                    'get_created_by',
                     # 'last_updated_by',
                     'updated',
                 ),
@@ -479,6 +524,14 @@ class PersonAdmin(admin.ModelAdmin):
 
         ## save
         super(PersonAdmin, self).save_model(request, obj, form, change)
+
+    def get_created_by(self, obj):
+        """
+            This will display a custom created_by field by using
+            the user's first and last name instead of the user's username
+        """
+        return get_user_display_name(obj.created_by)
+    get_created_by.short_description = 'Created By'
 
 
 admin.site.register(Dive, DiveAdmin)
