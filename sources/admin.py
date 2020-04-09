@@ -124,11 +124,20 @@ class InteractionNewInline(admin.TabularInline, CreatedByMixin):
         return qs.none()
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+            Overwrites formfield_for_foreignkey when db field is created_by.
+            Allows us to display user's full name in select dropdown. Passes in
+            a class in the select widget to enforce the correct dropdown
+        """
         if db_field.name == 'created_by':
             return UserChoiceField(queryset=User.objects.all(), widget=Select(attrs={'class': 'select'}))
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
+        """
+            Overwrites formfield_for_manytomany when db field is interviewer.
+            Allows us to display user's full name in select dropdowns
+        """
         if db_field.name == 'interviewer':
             return UserChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('interviewer', is_stacked=False))
         return super().formfield_for_manytomany(db_field, request, **kwargs)
@@ -210,7 +219,7 @@ class InteractionAdmin(admin.ModelAdmin, CreatedByMixin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         """
-            Overwrites formfield_for_manytomany is db field is interviewer.
+            Overwrites formfield_for_manytomany when db field is interviewer.
             Allows us to display user's full name in select dropdowns
         """
         if db_field.name == 'interviewer':
