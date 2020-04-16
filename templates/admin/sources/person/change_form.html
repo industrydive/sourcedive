@@ -1,7 +1,13 @@
 {% extends 'admin/change_form.html' %}
 {% load static %}
 
-{% static 'css/base.css' %}￼
+{% block content_title %}
+  {% if request.GET.edit %}
+    <h1>Edit {{ opts.verbose_name }}</h1>
+  {% else %}
+    <h1>View {{ opts.verbose_name }}</h1>
+  {% endif %}
+{% endblock %}
 
 {% block object-tools-items %}
   {{ block.super }}
@@ -15,20 +21,16 @@
   {% elif '?edit=true' in request.get_full_path %}
     <li>
       <a href="{% url 'admin:sources_person_change' object_id %}" class="change-link">
-        View
+        <span>View</span>
       </a>
     </li>
   {% endif %}
 {% endblock %}
 
-{% block content_title %}
-  {% if request.GET.edit %}
-    <h1>Edit {{ opts.verbose_name }}</h1>
-  {% else %}
-    <h1>View {{ opts.verbose_name }}</h1>
-  {% endif %}
-{% endblock %}
-
+{% comment %}
+  Keeping this empty removes the submit buttons
+  at the top of the page
+{% endcomment %}
 {% block submit_buttons_top %}
   {% block submit-row %}
 
