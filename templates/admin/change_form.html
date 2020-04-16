@@ -2,31 +2,6 @@
 {% load static %}
 {% load i18n admin_urls %}
 
-{% block content_title %}
-  {% if request.GET.edit %}
-    <h1>Edit {{ opts.verbose_name }}</h1>
-  {% else %}
-    <h1>View {{ opts.verbose_name }}</h1>
-  {% endif %}
-{% endblock %}
-
-{% block submit_buttons_top %}
-
-  {% block submit-row %}
-  <div class='submit-row'>
-    {# Edit/View buttons should only appear on Person model "change" page #}
-    {% if opts.model_name.lower == 'person' and change %}
-      {% if not '?edit=true' in request.get_full_path %}
-        <input type="submit" value="Edit" name="_edit" class="default">
-      {% elif '?edit=true' in request.get_full_path %}
-        <input type="submit" value="View" name="_view" class="default">
-      {% endif %}
-    {% endif %}
-  </div>
-  {% endblock %}
-
-{% endblock %}
-
 {% block extrahead %}
 
 {{ block.super }}

@@ -1,0 +1,36 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% static 'css/base.css' %}￼
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if not '?edit=true' in request.get_full_path %}
+    <li>
+      <a href="{% url 'admin:sources_person_change' object_id %}?edit=true" class="change-link"/>
+        <img src="{% static 'img/admin/sources/icon-pencil.svg' %}"  width="11px" height="11px" >
+        <span>Edit</span>
+      </a>
+    </li>
+  {% elif '?edit=true' in request.get_full_path %}
+    <li>
+      <a href="{% url 'admin:sources_person_change' object_id %}" class="change-link">
+        View
+      </a>
+    </li>
+  {% endif %}
+{% endblock %}
+
+{% block content_title %}
+  {% if request.GET.edit %}
+    <h1>Edit {{ opts.verbose_name }}</h1>
+  {% else %}
+    <h1>View {{ opts.verbose_name }}</h1>
+  {% endif %}
+{% endblock %}
+
+{% block submit_buttons_top %}
+  {% block submit-row %}
+
+  {% endblock %}
+{% endblock %}
