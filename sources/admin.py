@@ -178,8 +178,12 @@ class InteractionAdmin(admin.ModelAdmin, CreatedByMixin):
         directly leads to problems.
         """
         hide_data = self._determine_whether_to_hide_notes(request, obj)
+        created_by_someone_else = request.user != obj.created_by
+
         if hide_data:
             return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
+        elif created_by_someone_else:
+            return self._fields_always_readonly + self._fields_before_notes + self._fields_after_notes + ['notes']
         else:
             return self._fields_always_readonly
 
