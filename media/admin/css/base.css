@@ -759,15 +759,6 @@ a.deletelink:focus, a.deletelink:hover {
     background-image: url(../img/tooltag-add.svg);
 }
 
-.object-tools a:link.change-link, .object-tools a:visited.change-link {
-    background: #417690;
-}
-
-.object-tools .change-link img {
-    margin-right: 3px;
-    padding-bottom: 2px;
-}
-
 /* OBJECT HISTORY */
 
 table#change-history {

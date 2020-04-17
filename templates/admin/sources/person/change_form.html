@@ -10,6 +10,18 @@
 {% endblock %}
 
 {% block object-tools-items %}
+
+  <style>
+    .object-tools a:link.change-link, .object-tools a:visited.change-link {
+      background: #417690;
+    }
+
+    .object-tools .change-link img {
+      margin-right: 3px;
+      padding-bottom: 2px;
+    }
+  </style>
+
   {{ block.super }}
   {% if not '?edit=true' in request.get_full_path %}
     <li>
