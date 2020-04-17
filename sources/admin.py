@@ -164,6 +164,8 @@ class InteractionAdmin(admin.ModelAdmin, CreatedByMixin):
         """
         if not obj:
             return False
+        # TODO add logic to show note on semi-private intxn to a user who is
+        # listed as an interview here or in get_readonly_fields?
         elif obj.privacy_level in ['searchable', 'private_individual'] and obj.created_by != request.user:
             return True
         else:
@@ -176,14 +178,30 @@ class InteractionAdmin(admin.ModelAdmin, CreatedByMixin):
 
         Use Django's built in hook for accessing readonly fields. NOTE: Manipulating self.readonly_fields
         directly leads to problems.
+
+        Also, make all fields read-only if the current user:
+            - did not create the interaction
+            - was not listed as an interviewer
         """
         hide_data = self._determine_whether_to_hide_notes(request, obj)
-        created_by_someone_else = request.user != obj.created_by
 
-        if hide_data:
+        current_user = request.user
+        created_by_someone_else = current_user != obj.created_by
+        not_an_interviewer = current_user not in obj.interviewer.all()
+
+        # TODO: Use a more generic approach so nothing falls through if new
+        # fields are added. They should ideally be captured by this approach
+        # because new fields would need to be before or after notes.
+        all_fields_except_notes = self._fields_always_readonly + self._fields_before_notes + self._fields_after_notes
+
+        if hide_data and created_by_someone_else and not_an_interviewer:
+            return all_fields_except_notes + ['notes_semiprivate_display']
+        elif hide_data:
             return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
-        elif created_by_someone_else:
-            return self._fields_always_readonly + self._fields_before_notes + self._fields_after_notes + ['notes']
+        # TODO add logic to show note on semi-private intxn to a user who is
+        # listed as an interview here or in _determine_whether_to_hide_notes?
+        elif created_by_someone_else and not_an_interviewer:
+            return all_fields_except_notes + ['notes']
         else:
             return self._fields_always_readonly
 
