@@ -126,7 +126,7 @@ class InteractionAdmin(admin.ModelAdmin):
         if hide_data:
             return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
         else:
-            return self._fields_always_readonly   
+            return self._fields_always_readonly
 
 
     def get_fields(self, request, obj=None):
@@ -181,7 +181,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
 
-    
+
 # for SimpleListFilter classes
 all_sources = Person.objects.all()
 private_sources = all_sources.filter(privacy_level='private_individual')
@@ -273,6 +273,10 @@ class PersonAdmin(admin.ModelAdmin):
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
     inlines = (InteractionInline, InteractionNewInline,)
 
+    class Media:
+        css = {
+            'all': ('css/admin/change-link.css',)
+        }
 
     def email_address_semiprivate_display(self, obj):
         display_text = 'Please contact <strong>{}</strong> for this information'.format(obj.created_by)
