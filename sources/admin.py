@@ -162,18 +162,18 @@ class InteractionAdmin(admin.ModelAdmin, CreatedByMixin):
         NOTE: this could be abstracted out, as it is virtually identical to _determine_whether_to_hide_contact_data
         in PersonAdmin.
         """
-        privacy_level = obj.privacy_level
-        current_user = request.user
+        # Needed so it doesn't break for /add pages
+        if obj:
+            privacy_level = obj.privacy_level
+            current_user = request.user
 
-        if not obj:
-            return False
-        # Show note on semi-private interaction to a user who is an interviewer
-        elif privacy_level == 'searchable' and current_user in obj.interviewer.all():
-            return False
-        # Hide note if the interaction is semi-private or private and the user
-        # did not create it.
-        elif privacy_level in ['searchable', 'private_individual'] and obj.created_by != current_user:
-            return True
+            # Show note on semi-private interaction to a user who is an interviewer
+            if privacy_level == 'searchable' and current_user in obj.interviewer.all():
+                return False
+            # Hide note if the interaction is semi-private or private and the user
+            # did not create it.
+            elif privacy_level in ['searchable', 'private_individual'] and obj.created_by != current_user:
+                return True
         else:
             return False
 
@@ -189,25 +189,30 @@ class InteractionAdmin(admin.ModelAdmin, CreatedByMixin):
             - did not create the interaction
             - was not listed as an interviewer
         """
-        hide_data = self._determine_whether_to_hide_notes(request, obj)
+        # Needed so it doesn't break for /add pages
+        if obj:
+            hide_data = self._determine_whether_to_hide_notes(request, obj)
 
-        current_user = request.user
-        created_by_someone_else = current_user != obj.created_by
-        not_an_interviewer = current_user not in obj.interviewer.all()
+            current_user = request.user
+            created_by_someone_else = current_user != obj.created_by
+            not_an_interviewer = current_user not in obj.interviewer.all()
 
-        # TODO: Use a more generic approach so nothing falls through if new
-        # fields are added. They should ideally be captured by this approach
-        # because new fields would need to be before or after notes.
-        all_fields_except_notes = self._fields_always_readonly + self._fields_before_notes + self._fields_after_notes
-        # Created by someone else, not an interviewer and hidden data
-        if hide_data and created_by_someone_else and not_an_interviewer:
-            return all_fields_except_notes + ['notes_semiprivate_display']
-        # Hidden data
-        if hide_data:
-            return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
-        # Created by someone else and not an interviewer
-        elif created_by_someone_else and not_an_interviewer:
-            return all_fields_except_notes + ['notes']
+            # TODO: Use a more generic approach so nothing falls through if new
+            # fields are added. They should ideally be captured by this approach
+            # because new fields would need to be before or after notes.
+            all_fields_except_notes = self._fields_always_readonly + self._fields_before_notes + self._fields_after_notes
+            # Created by someone else, not an interviewer and hidden data
+            if hide_data and created_by_someone_else and not_an_interviewer:
+                return all_fields_except_notes + ['notes_semiprivate_display']
+            # Hidden data
+            if hide_data:
+                return self._fields_always_readonly + ['notes_semiprivate_display', 'privacy_level']
+            # Created by someone else and not an interviewer
+            elif created_by_someone_else and not_an_interviewer:
+                return all_fields_except_notes + ['notes']
+            # Fall back to default
+            else:
+                return self._fields_always_readonly
         else:
             return self._fields_always_readonly
 
