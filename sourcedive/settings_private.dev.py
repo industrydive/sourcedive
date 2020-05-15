@@ -35,4 +35,5 @@ SOCIAL_AUTH_ALWAYS_ASSOCIATE = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''  # UPDATE see lastpass
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''  # UPDATE see lastpass
 
-SOCIAL_AUTH_GOOGLE_WHITELISTED_DOMAINS = ['industrydive.com']
+# NOTE: We don't want to whitelist anyone — access should be explicitly given
+# SOCIAL_AUTH_GOOGLE_WHITELISTED_DOMAINS = ['industrydive.com']

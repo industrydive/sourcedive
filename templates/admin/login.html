@@ -55,6 +55,7 @@
   <div style="text-align: center;">
     <a class="button" href="{% url 'social:begin' 'google-oauth2' %}">Log in with Gmail</a>
   </div>
+  {% if test_env %}
   <br>
   <hr>
   <br>
@@ -80,6 +81,7 @@
     <div class="submit-row">
       <label>&nbsp;</label><input type="submit" value="{% trans 'Log in' %}" />
     </div>
+  {% endif %}
   </form>
 </div>
 {% endblock %}

@@ -96,7 +96,7 @@ class Person(BasicInfo, PrivacyMixin):
     # organization = models.CharField(max_length=255, null=True, blank=True, verbose_name='Organization') # , help_text='Comma-separated list')
     phone_number_primary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Primary phone number', help_text=('Ideally a cell phone'))
     phone_number_secondary = models.CharField(max_length=30, null=True, blank=True, verbose_name='Secondary phone number')
-    prefix = models.CharField(choices=PREFIX_CHOICES, max_length=5, null=True, blank=True, verbose_name='Prefix')
+    prefix = models.CharField(max_length=30, null=True, blank=True, verbose_name='Prefix')
     # private = models.BooleanField(blank=True, default=False, help_text='Private sources will only be visible to you. Non-private sources will be visible to all newsroom users.')
     pronouns = models.CharField(null=True, blank=True, max_length=255, help_text='If provided by source (e.g. she/her, they/their, etc.)', verbose_name='Pronouns')
     skype = models.CharField(max_length=255, null=True, blank=True, verbose_name='Skype username')
