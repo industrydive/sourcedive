@@ -1,0 +1,10 @@
+.object-tools a:link.change-link, .object-tools a:visited.change-link {
+  align-items: center;
+    background: #417690;
+    display: flex;
+  }
+
+.object-tools .change-link img {
+    margin-right: 3px;
+    padding-bottom: 2px;
+}

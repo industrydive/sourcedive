@@ -365,6 +365,10 @@ class PersonAdmin(admin.ModelAdmin, CreatedByMixin):
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
     inlines = (InteractionInline, InteractionNewInline,)
 
+    class Media:
+        css = {
+            'all': ('css/admin/change-link.css',)
+        }
 
     def email_address_semiprivate_display(self, obj):
         display_text = 'Please contact <strong>{}</strong> for this information'.format(obj.created_by)
