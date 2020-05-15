@@ -464,7 +464,7 @@ class PersonAdmin(admin.ModelAdmin, CreatedByMixin):
                     'get_created_by',
                     # 'last_updated_by',
                     'updated',
-                    'import_notes'
+                    'import_notes',
                 ),
             }),
         )
