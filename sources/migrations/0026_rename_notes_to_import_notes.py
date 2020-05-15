@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sources', '0024_rename_owned_by_to_exportable_by'),
+        ('sources', '0025_change_prefix_to_free_text'),
     ]
 
     operations = [
