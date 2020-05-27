@@ -333,14 +333,18 @@ class OrganizationFilter(SimpleListFilter):
 class PersonAdmin(admin.ModelAdmin, CreatedByMixin):
     list_display = ['name', 'updated', 'get_created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
-    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
+    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'import_notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization', 'exportable_by']
-    readonly_fields = ['entry_method', 'entry_type', 'get_created_by', 'updated']
+    readonly_fields = ['entry_method', 'entry_type', 'get_created_by', 'updated', 'import_notes']
     # save_as = True
     save_on_top = True
     view_on_site = False  # THIS DOES NOT WORK CURRENTLY
     inlines = (InteractionInline, InteractionNewInline,)
 
+    class Media:
+        css = {
+            'all': ('css/admin/change-link.css',)
+        }
 
     def email_address_semiprivate_display(self, obj):
         display_text = 'Please contact <strong>{}</strong> for this information'.format(obj.created_by)
@@ -464,6 +468,7 @@ class PersonAdmin(admin.ModelAdmin, CreatedByMixin):
                     'get_created_by',
                     # 'last_updated_by',
                     'updated',
+                    'import_notes',
                 ),
             }),
         )

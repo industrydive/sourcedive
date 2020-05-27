@@ -149,7 +149,7 @@ def import_csv(csv_file):
                     'phone_number_primary': row['phone_number_primary'],
                     'phone_number_secondary': row['phone_number_secondary'],
                     'twitter': row['twitter'],
-                    # 'notes': row['notes'],
+                    'import_notes': row['import_notes'],
                     # 'website': row['website'],
                     'prefix': row['prefix'],
                     # 'language': 'English', ## m2mfield
