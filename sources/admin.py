@@ -333,7 +333,7 @@ class OrganizationFilter(SimpleListFilter):
 class PersonAdmin(admin.ModelAdmin, CreatedByMixin):
     list_display = ['name', 'updated', 'get_created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
-    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'import_notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
+    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'name', 'import_notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization', 'exportable_by']
     readonly_fields = ['entry_method', 'entry_type', 'get_created_by', 'updated', 'import_notes']
     # save_as = True
