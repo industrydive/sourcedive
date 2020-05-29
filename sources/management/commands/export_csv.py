@@ -19,11 +19,14 @@ def export_sources(current_user_id):
     current_user = User.objects.get(id=current_user_id)
     sources = Person.objects.all()
 
-    # created by this user
+    # created by this user (all privacy levels)
     sources_created_by_user = sources.filter(created_by=current_user)
-    # exoprtable by Dive
+    # exportable by Dive (only public for now)
     current_user_dive = Dive.objects.get(users=current_user)
-    sources_exportable_by_dive = sources.filter(exportable_by=current_user_dive)
+    sources_exportable_by_dive = sources.filter(
+        privacy_level='public',
+        exportable_by=current_user_dive
+    )
     # exportable by another user; TODO after this field is added
     # sources_exportable_by_user = sources.filter()
 
@@ -44,7 +47,9 @@ def export_sources(current_user_id):
         header = [field.name for field in Person._meta.fields]
         sources_writer.writerow(header)
 
-        for source in sources_to_export.values_list():
+        sources = sources_to_export.values_list()
+
+        for source in sources:
             sources_writer.writerow(source)
 
     # return response
