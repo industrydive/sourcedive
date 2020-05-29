@@ -130,7 +130,7 @@ class InteractionNewInline(admin.TabularInline, CreatedByMixin):
             a class in the select widget to enforce the correct dropdown
         """
         if db_field.name == 'created_by':
-            return UserChoiceField(queryset=User.objects.all(), widget=Select(attrs={'class': 'select'}))
+            return UserChoiceField(queryset=User.objects.all(), widget=Select(attrs={'class': 'select'}), initial=request.user.id)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
