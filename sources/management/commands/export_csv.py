@@ -44,13 +44,14 @@ def export_sources(current_user_id):
     with open(filename, mode='w') as csv_file:
         sources_writer = csv.writer(csv_file, delimiter=',', quotechar='"')
         # sources_writer = csv.writer(response)
-        header = [field.name for field in Person._meta.fields]
-        sources_writer.writerow(header)
+        fields = ['city','country','email_address','expertise__name','exportable_by__name','gatekeeper','import_notes','industries__name','linkedin','name','organization__name','phone_number_primary','phone_number_secondary','prefix','privacy_level','pronouns','skype','state','title','timezone','twitter','type_of_expert','website','created_by__username','created','updated']
+        # header row
+        sources_writer.writerow(fields)
 
-        sources = sources_to_export.values_list()
+        sources = sources_to_export.values(*fields)
 
         for source in sources:
-            sources_writer.writerow(source)
+            sources_writer.writerow(source.values())
 
     # return response
 
