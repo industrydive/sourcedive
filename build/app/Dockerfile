@@ -1,5 +1,5 @@
 # You can use a specific version too, like python:3.6.5-alpine3.7
-FROM python:3.7-alpine
+FROM python:3.8-alpine
 
 WORKDIR /usr/src/app
 
