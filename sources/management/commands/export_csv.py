@@ -9,23 +9,23 @@ from django.contrib.auth.models import User
 from sources.models import Person, Dive
 
 
-def export_sources(current_user_id):
+def export_sources(user_id):
     """
     Generate a list and provide a csv. Sources included are based on sources:
         - this user created
         - another user set exportable by a Dive this user is affiliated with
         - another user set exportable by this user
     """
-    current_user = User.objects.get(id=current_user_id)
+    user = User.objects.get(id=user_id)
     sources = Person.objects.all()
 
     # created by this user (all privacy levels)
-    sources_created_by_user = sources.filter(created_by=current_user)
+    sources_created_by_user = sources.filter(created_by=user)
     # exportable by Dive (only public for now)
-    current_user_dive = Dive.objects.get(users=current_user)
+    user_dive = Dive.objects.get(users=user)
     sources_exportable_by_dive = sources.filter(
         privacy_level='public',
-        exportable_by=current_user_dive
+        exportable_by=user_dive
     )
     # exportable by another user; TODO after this field is added
     # sources_exportable_by_user = sources.filter()
@@ -34,26 +34,51 @@ def export_sources(current_user_id):
     sources_to_export = sources_created_by_user | sources_exportable_by_dive
 
     # create the csv
-    username = current_user.get_username()
+    username = user.get_username()
     date = datetime.today().strftime('%Y%m%d')
     filename = f'sources-{username}-{date}.csv'
 
-    # response = HttpResponse(content_type='text/csv')
-    # response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
     with open(filename, mode='w') as csv_file:
-        sources_writer = csv.writer(csv_file, delimiter=',', quotechar='"')
-        # sources_writer = csv.writer(response)
-        fields = ['city','country','email_address','expertise__name','exportable_by__name','gatekeeper','import_notes','industries__name','linkedin','name','organization__name','phone_number_primary','phone_number_secondary','prefix','privacy_level','pronouns','skype','state','title','timezone','twitter','type_of_expert','website','created_by__username','created','updated']
-        # header row
-        sources_writer.writerow(fields)
+        fields = ['city', 'country', 'email_address', 'expertise', 'exportable_by', 'gatekeeper', 'import_notes', 'industries', 'linkedin','name', 'organization', 'phone_number_primary', 'phone_number_secondary', 'prefix', 'privacy_level', 'pronouns', 'skype', 'state','title', 'timezone', 'twitter', 'type_of_expert', 'website', 'created_by', 'created', 'updated']
+        sources_writer = csv.DictWriter(csv_file, fieldnames=fields, delimiter=',', quotechar='"')
 
-        sources = sources_to_export.values(*fields)
+        sources_writer.writeheader()
 
+        # must be so verbose in order to join the M2M fields values into strings
         for source in sources:
-            sources_writer.writerow(source.values())
-
-    # return response
+            row_dict = {
+                'city': source.city,
+                'country': source.country,
+                'email_address': source.email_address,
+                'expertise': ', '.join(
+                    [expertise.name for expertise in source.expertise.all()]
+                ),
+                'gatekeeper': source.gatekeeper,
+                'import_notes': source.import_notes,
+                'industries': ', '.join(
+                    [industry.name for industry in source.industries.all()]
+                ),
+                'linkedin': source.linkedin,
+                'name': source.name,
+                'organization': ', '.join(
+                    [organization.name for organization in source.organization.all()]
+                ),
+                'phone_number_primary': source.phone_number_primary,
+                'phone_number_secondary': source.phone_number_secondary,
+                'prefix': source.prefix,
+                'privacy_level': source.privacy_level,
+                'pronouns': source.pronouns,
+                'skype': source.skype,
+                'state': source.state,
+                'title': source.title,
+                'timezone': source.timezone,
+                'twitter': source.twitter,
+                'type_of_expert': source.type_of_expert,
+                'website': source.website,
+                'created_by': source.created_by.username,
+                'updated': source.updated,
+            }
+            sources_writer.writerow(row_dict)
 
 
 class Command(BaseCommand):
@@ -61,12 +86,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # required arg
-        parser.add_argument('current_user_id', 
-            help='Specify the current user.'
+        parser.add_argument('user_id', 
+            help='Specify the relevant user id.'
         )
 
     def handle(self, *args, **options):
-        current_user_id = options['current_user_id']
+        user_id = options['user_id']
 
-        export_sources(current_user_id)
+        export_sources(user_id)
 

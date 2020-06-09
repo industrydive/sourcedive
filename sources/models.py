@@ -109,6 +109,7 @@ class Person(BasicInfo, PrivacyMixin):
     # TODO: remove this bc it's a vestige of other project
     related_user = models.ForeignKey(User, null=True, blank=True, related_name='related_user_person', on_delete=models.SET_NULL)
 
+
     def save(self, *args, **kwargs):
         if self.twitter:
             # remove the @ sign for consistency and hyperlinking
