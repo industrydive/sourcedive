@@ -152,7 +152,6 @@ def import_csv(csv_file):
                     'import_notes': row['import_notes'],
                     # 'website': row['website'],
                     'prefix': row['prefix'],
-                    # 'language': 'English', ## m2mfield
                     # 'approved_by_admin': True,
                     # 'approved_by_user': True,
                     'entry_method': 'import',

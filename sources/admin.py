@@ -32,6 +32,7 @@ class CreatedByMixin(object):
 def get_user_display_name(obj):
     return obj.get_full_name() or obj.username
 
+
 class UserChoiceField(ModelMultipleChoiceField):
     """
         This will change how the user (might be field interviewer, etc) is
@@ -40,6 +41,7 @@ class UserChoiceField(ModelMultipleChoiceField):
     """
     def label_from_instance(self, obj):
         return get_user_display_name(obj)
+
 
 class DiveAdmin(admin.ModelAdmin):
     fields = ['name', 'users']
@@ -109,6 +111,7 @@ class InteractionInline(admin.TabularInline, CreatedByMixin):
         return InteractionAdmin.interviewers_listview(None, obj)
     interviewers_listview.short_description = 'Interviewer(s)'
 
+
 class InteractionNewInline(admin.TabularInline, CreatedByMixin):
     model = Interaction
     fields = ['privacy_level', 'date_time', 'interaction_type', 'interviewee', 'interviewer', 'created_by', 'notes']
@@ -141,6 +144,7 @@ class InteractionNewInline(admin.TabularInline, CreatedByMixin):
         if db_field.name == 'interviewer':
             return UserChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple('interviewer', is_stacked=False))
         return super().formfield_for_manytomany(db_field, request, **kwargs)
+
 
 class InteractionAdmin(admin.ModelAdmin, CreatedByMixin):
     list_display = ['interviewee', 'interaction_type', 'date_time', 'get_created_by', 'interviewers_listview', 'privacy_level']
@@ -362,7 +366,7 @@ class OrganizationFilter(SimpleListFilter):
 class PersonAdmin(admin.ModelAdmin, CreatedByMixin):
     list_display = ['name', 'updated', 'get_created_by', 'privacy_level']
     list_filter = [IndustryFilter, ExpertiseFilter, OrganizationFilter, 'city', 'state', 'privacy_level', 'gatekeeper']
-    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'language', 'name', 'import_notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
+    search_fields = ['city', 'country', 'email_address', 'expertise__name', 'first_name', 'name', 'import_notes', 'organization', 'state', 'title', 'type_of_expert', 'twitter', 'website']
     filter_horizontal = ['expertise', 'industries', 'organization', 'exportable_by']
     readonly_fields = ['entry_method', 'entry_type', 'get_created_by', 'updated', 'import_notes']
     # save_as = True

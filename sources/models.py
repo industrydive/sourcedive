@@ -89,7 +89,6 @@ class Person(BasicInfo, PrivacyMixin):
     gatekeeper = models.BooleanField(blank=True, default=False, help_text='Is this person the contact for another source?')
     import_notes = models.TextField(null=True, blank=True, help_text='Any information deemed relevant to the source at the time of import.')
     industries = models.ManyToManyField(Industry, blank=True)
-    language = models.CharField(max_length=255, null=True, blank=True, help_text='Comma-separated list', verbose_name='Language')
     linkedin = models.URLField(max_length=255, null=True, blank=True, help_text='Please include http:// at the beginning.', verbose_name='LinkedIn URL')
     name = models.CharField(max_length=255, null=True, blank=False)
     organization = models.ManyToManyField(Organization, blank=True)
@@ -109,6 +108,7 @@ class Person(BasicInfo, PrivacyMixin):
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='created_by_person', on_delete=models.SET_NULL)
     # TODO: remove this bc it's a vestige of other project
     related_user = models.ForeignKey(User, null=True, blank=True, related_name='related_user_person', on_delete=models.SET_NULL)
+
 
     def save(self, *args, **kwargs):
         if self.twitter:
