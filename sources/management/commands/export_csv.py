@@ -22,16 +22,18 @@ def export_sources(user_id):
     # created by this user (all privacy levels)
     sources_created_by_user = sources.filter(created_by=user)
     # exportable by Dive (only public for now)
-    user_dive = Dive.objects.get(users=user)
-    sources_exportable_by_dive = sources.filter(
-        privacy_level='public',
-        exportable_by=user_dive
-    )
+    try:
+        user_dive = Dive.objects.get(users=user)
+        sources_exportable_by_dive = sources.filter(
+            privacy_level='public',
+            exportable_by=user_dive
+        )
+        # combine the querysets
+        sources_to_export = sources_created_by_user | sources_exportable_by_dive
+    except:
+        sources_to_export = sources_created_by_user
     # exportable by another user; TODO after this field is added
     # sources_exportable_by_user = sources.filter()
-
-    # combine those querysets
-    sources_to_export = sources_created_by_user | sources_exportable_by_dive
 
     # create the csv
     username = user.get_username()
@@ -46,23 +48,27 @@ def export_sources(user_id):
 
         # must be so verbose in order to join the M2M fields values into strings
         for source in sources:
+            expertise = ', '.join(
+                [expertise.name for expertise in source.expertise.all()]
+            )
+            industries = ', '.join(
+                [industry.name for industry in source.industries.all()]
+            )
+            organizations = ', '.join(
+                [organization.name for organization in source.organization.all()]
+            )
+
             row_dict = {
                 'city': source.city,
                 'country': source.country,
                 'email_address': source.email_address,
-                'expertise': ', '.join(
-                    [expertise.name for expertise in source.expertise.all()]
-                ),
+                'expertise': expertise,
                 'gatekeeper': source.gatekeeper,
                 'import_notes': source.import_notes,
-                'industries': ', '.join(
-                    [industry.name for industry in source.industries.all()]
-                ),
+                'industries': industries,
                 'linkedin': source.linkedin,
                 'name': source.name,
-                'organization': ', '.join(
-                    [organization.name for organization in source.organization.all()]
-                ),
+                'organization': organizations,
                 'phone_number_primary': source.phone_number_primary,
                 'phone_number_secondary': source.phone_number_secondary,
                 'prefix': source.prefix,
